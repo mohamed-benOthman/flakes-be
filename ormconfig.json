@@ -1,0 +1,10 @@
+{
+  type: 'mysql',
+  host: 'localhost',
+  port: 3306,
+  username: 'yrros',
+  password: '7Quinoa.0',
+  database: 'Flakes',
+  entities: ['src/**/**.entity{.ts,.js}'],
+  synchronize: true
+}
