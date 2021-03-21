@@ -280,6 +280,26 @@ export class Maquilleuse extends BaseEntity{
     }
 
   }
+  public static async getMaquilleuseByUsername(user: any) {
+    console.log(user);
+    const u: Maquilleuse = await getRepository(Maquilleuse)
+        .createQueryBuilder('maquilleuse')
+        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
+        .leftJoinAndSelect('maquilleuse.cities', 'cities')
+        .leftJoinAndSelect('maquilleuse.business', 'business')
+        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
+        .where('maquilleuse.username = \'' + user + '\'')
+        .getOne();
+
+    if (u) {
+      return Promise.resolve(u);
+
+    } else {
+      throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
+      throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
+    }
+
+  }
   public static async getAllMaquilleuses2(): Promise<Maquilleuse> {
 
     const martist: Maquilleuse = await getRepository(Maquilleuse)

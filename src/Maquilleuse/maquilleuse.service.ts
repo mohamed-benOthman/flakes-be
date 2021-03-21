@@ -64,6 +64,9 @@ export class MaquilleuseService implements IMaquilleuseService{
   async deleteMaquilleuse(user:any){
     return await Maquilleuse.deleteMaquilleuse(user);
   }
+  async getMaquilleuseByUsername(username:any){
+    return await Maquilleuse.getMaquilleuseByUsername(username);
+  }
 
   async findMaquilleuseByEmail(email: string): Promise<Maquilleuse> {
     console.log('email:' + email);

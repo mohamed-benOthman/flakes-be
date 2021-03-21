@@ -65,6 +65,13 @@ export class MaquilleuseController {
   public async deleteMaquilleuse(@Param('username') username: string){
     return this.maquilleuseService.deleteMaquilleuse(username);
   }
+  @Get('/:username')
+  @ApiOperation({title: 'maquilleuse trouve'})
+  @ApiResponse({status: 200})
+  @ApiResponse({status: 404})
+  public async getMaquilleuseByUsername(@Param('username') username: string){
+    return this.maquilleuseService.getMaquilleuseByUsername(username);
+  }
 
   @Get('/:parametre/:type')
   @ApiOperation({title: 'Retourne Nbr artist par Departement(type=1) /par ville (type=2) ' +
