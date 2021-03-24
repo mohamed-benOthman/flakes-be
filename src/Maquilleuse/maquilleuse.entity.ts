@@ -52,6 +52,7 @@ export class Maquilleuse extends BaseEntity{
   @Column({ length: 400 })
   slogan: string;
 
+
   @Column({ length: 200 })
   photo_profile: string;
   @JsonProperty('photos')
@@ -76,6 +77,9 @@ export class Maquilleuse extends BaseEntity{
 
   @Column()
   movings: number;
+
+  @Column()
+  nbImages: number;
 
   public static async findAll(debut: number, cpt: number): Promise<Maquilleuse[]> {
     console.log('Find All execution');

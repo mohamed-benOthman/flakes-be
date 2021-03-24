@@ -1,4 +1,17 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Req, Res, Session, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Req,
+  Res,
+  Session,
+  UseGuards
+} from '@nestjs/common';
 import {ExpertiseService} from './expertise.service';
 import {ApiBearerAuth, ApiOperation, ApiResponse, ApiUseTags} from '@nestjs/swagger';
 import {Expertise} from './expertise.entity';
@@ -21,6 +34,23 @@ export class ExpertiseController {
       .send(expertises);
 
   }
+  @Delete('/deleteExpertise/:id')
+  @ApiOperation({title: 'expertise deleted'})
+  @ApiResponse({status: 200})
+  @ApiResponse({status: 404})
+  public async deleteExpertise(@Param('id') id: number){
+
+    return this.expertiseService.deleteExpertise(id);
+  }
+
+  @Post('add')
+  @ApiOperation({titile:'Ajouter une expertises'})
+  @ApiResponse({status:200, description: 'Expertise ajoutee'})
+  @ApiResponse({status:400, descriptiom : 'cette expertise est deja existe'})
+  public async addExpertise(@Req() req:Request ){
+    const expertise = await this.expertiseService.addExpertise(req.body.lebelle);
+    return expertise;
+  }
 
   @Get(':id')
   @ApiOperation({title: 'Lister les expertises dont l\'id est saisi'})
@@ -29,6 +59,14 @@ export class ExpertiseController {
   public async getExpertiseFromId(@Param('id') id: number) {
     const expertise: Expertise = await this.expertiseService.findExpertiseById(id);
     return expertise;
+  }
+
+  @Put('/updateExpertise')
+  @ApiOperation({title: 'modify the expertise choisie'})
+  @ApiResponse({status: 200})
+  @ApiResponse({status: 400})
+  public async updateExpertise(@Body() expertise: Expertise){
+    return this.expertiseService.updateExpertise(expertise);
   }
   /*
     @Get(':id')

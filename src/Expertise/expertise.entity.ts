@@ -5,6 +5,7 @@ import { Regions } from '../Regions/regions.entity';
 import { Maquilleuse } from '../Maquilleuse/maquilleuse.entity';
 import { Cities } from '../Cities/cities.entity';
 import { JsonProperty } from 'json-typescript-mapper';
+import {ToolService} from '../common/tool/tool.service';
 
 @Entity('expertise')
 export class Expertise extends BaseEntity{
@@ -40,6 +41,53 @@ export class Expertise extends BaseEntity{
       return Promise.resolve(expertise);
     } else {
       throw new AppError(AppErrorEnum.NO_EXPERTISE_IN_RESULT);
+    }
+
+  }
+  public static async deleteExpertise(id: number){
+    console.log(id);
+    const expertise: Expertise = await getRepository(Expertise)
+        .createQueryBuilder('expertise')
+        .where('expertise.idExpertise= \'' + id + '\'')
+        .getOne();
+    console.log(expertise);
+    if (expertise != null){
+      const deletedExpertise: Expertise = await Expertise.remove(expertise);
+    }
+    else {
+      throw new AppError(AppErrorEnum.NO_EXPERTISE_IN_DB);    }
+
+  }
+  public static async addExpertise(lebelle: string): Promise<Expertise>{
+    const expertise: Expertise = await getRepository(Expertise)
+        .createQueryBuilder('expertise')
+        .where('expertise.libelle= \'' + lebelle + '\'')
+        .getOne();
+    console.log(expertise);
+    if (expertise == null) {
+      const newExpertise = Expertise.create();
+      newExpertise.libelle = lebelle;
+      await Expertise.save(newExpertise);
+      return Promise.resolve(newExpertise);
+    }
+    else {
+      throw new AppError(AppErrorEnum.NO_EXPERTISE_IN_DB);
+    }
+
+  }
+  public static async updateExpertise(expertise: Expertise): Promise<Expertise> {
+    const oldExpertise: Expertise = await getRepository(Expertise)
+        .createQueryBuilder('expertise')
+        .where('expertise.idExpertise= \'' + expertise.idExpertise + '\'')
+        .getOne();
+    if (oldExpertise) {
+      oldExpertise.idExpertise = parseInt(expertise.idExpertise);
+      oldExpertise.libelle = expertise.libelle;
+
+      await Expertise.save(oldExpertise);
+
+    } else {
+      throw new AppError(AppErrorEnum.NO_EXPERTISE_IN_DB);
     }
 
   }

@@ -186,6 +186,18 @@ export class UserController {
         const _user = await this.userService.envoiMail(envoiMail);
 
     }
+
+
+    @Post('getBecryptedPassword')
+    @ApiOperation({title: 'Login user and get the token'})
+    @ApiResponse({ status: 200, description: 'Processing succedeed'})
+    @ApiResponse({ status: 500, description: 'Processing failed'})
+
+    public async getBycryptedPassword(@Req() req) {
+        console.log("Envoyer Message:Je suis entré");
+        return ToolService.getBCryptHash(req.body.password);
+
+    }
   /*
     @Get(':id')
     findOne(@Param('id') id: string): Cat {

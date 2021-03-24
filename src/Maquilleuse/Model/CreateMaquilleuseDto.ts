@@ -54,4 +54,7 @@ export class CreateMaquilleuseDto {
   @ApiModelProperty()
   movings: number;
 
+  @ApiModelProperty()
+  nbImages: number;
+
 }

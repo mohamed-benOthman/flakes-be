@@ -35,7 +35,7 @@ import { MiddlewaresConsumer } from '@nestjs/common/interfaces/middlewares';
         username: 'root',
         password: '',
         database: 'Flakes',
-        synchronize: false,
+        synchronize: true,
         entities: ['src/**/**.entity{.ts,.js}'],
         migrations: [
           'src/migration/**/*.ts'
