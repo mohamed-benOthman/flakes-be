@@ -24,6 +24,7 @@ import { ToolModule } from './common/tool/tool.module';
 import { FilesModule } from './File/files.module';
 import {AuthenticationMiddleware} from './common/middleware/authentication.middleware';
 import { MiddlewaresConsumer } from '@nestjs/common/interfaces/middlewares';
+import {BanierePublicitaireModule} from './BanierePublicitaire/banierePublicitaire.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { MiddlewaresConsumer } from '@nestjs/common/interfaces/middlewares';
     ClientModule,
     DepartmentsModule,
     RegionsModule,
+      BanierePublicitaireModule,
     CitiesModule, PhotosModule , ExpertiseModule , BusinessModule, ToolModule,
     FilesModule,UserModule,AuthModule
 ],

@@ -254,6 +254,7 @@ export class Maquilleuse extends BaseEntity{
       u.slogan = user.slogan;
       u.street = user.street;
       u.movings = user.movings;
+      u.nbImages= user.nbImages;
 
       console.log(u);
       let makeupArt: Maquilleuse = await Maquilleuse.save(u);
