@@ -49,10 +49,6 @@ export class Photos extends BaseEntity{
     }
   public static async findPhotosById(idphoto): Promise<Photos> {
 
-    /* const sql = await getRepository(Departments)
-       .createQueryBuilder('departments')
-       .where('departments.name like \''+deptname+'\%\'').getSql();
-     console.log('entity name:'+deptname);
 
      console.log('requete:'+sql);*/
     console.log(idphoto);
