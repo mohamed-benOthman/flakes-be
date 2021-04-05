@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Req, Res, Session, UseGuards } from '@nestjs/common';
+import {Body, Controller, Delete, Get, HttpStatus, Param, Post, Req, Res, Session, UseGuards} from '@nestjs/common';
 import {PhotosService} from './photos.service';
 import {ApiBearerAuth, ApiOperation, ApiResponse, ApiUseTags} from '@nestjs/swagger';
 import {Photos} from './photos.entity';
@@ -28,6 +28,15 @@ export class PhotosController {
   @ApiResponse({ status: 404, description: 'Pas de photo trouvé.'})
   public async getPhotoFromId(@Param('id') id: number) {
     const photos: Photos = await this.photosService.findPhotosById(id);
+    return photos;
+  }
+
+  @Delete(':id')
+  @ApiOperation({title: 'supprimer une photo sdelon id'})
+  @ApiResponse({ status: 200, description: 'Photos trouvés.'})
+  @ApiResponse({ status: 404, description: 'Pas de photo trouvé.'})
+  public async deletePhotoFromId(@Param('id') id: number) {
+    const photos: Photos = await this.photosService.deleteById(id);
     return photos;
   }
   /*

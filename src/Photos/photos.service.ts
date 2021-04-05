@@ -19,4 +19,8 @@ export class PhotosService implements IPhotosService{
     return await Photos.findPhotosById(id);
   }
 
+  async deleteById(id): Promise<Photos> {
+    return await Photos.deletePhotosById(id);
+  }
+
 }

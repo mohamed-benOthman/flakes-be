@@ -55,13 +55,26 @@ export class Photos extends BaseEntity{
      console.log('entity name:'+deptname);
 
      console.log('requete:'+sql);*/
-
+    console.log(idphoto);
     const photos: Photos = await getRepository(Photos)
       .createQueryBuilder('photos')
-      .where('photos.idPhoto=' + idphoto)
+      .where('photos.id=' + idphoto)
       .getOne();
     if (photos != null) {
       return Promise.resolve(photos);
+    } else {
+      throw new AppError(AppErrorEnum.NO_PHOTOS_IN_RESULT);
+    }
+
+  }
+  public static async deletePhotosById(idphoto): Promise<Photos> {
+
+    const photos: Photos = await getRepository(Photos)
+        .createQueryBuilder('photos')
+        .where('photos.id=' + idphoto)
+        .getOne();
+    if (photos != null) {
+      let photoDeleted: Photos = await Photos.remove(photos);
     } else {
       throw new AppError(AppErrorEnum.NO_PHOTOS_IN_RESULT);
     }
