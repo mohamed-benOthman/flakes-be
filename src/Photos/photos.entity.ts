@@ -68,7 +68,6 @@ export class Photos extends BaseEntity{
 
   }
   public static async deletePhotosById(idphoto): Promise<Photos> {
-
     const photos: Photos = await getRepository(Photos)
         .createQueryBuilder('photos')
         .where('photos.id=' + idphoto)
