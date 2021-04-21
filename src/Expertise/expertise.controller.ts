@@ -48,7 +48,8 @@ export class ExpertiseController {
   @ApiResponse({status:200, description: 'Expertise ajoutee'})
   @ApiResponse({status:400, descriptiom : 'cette expertise est deja existe'})
   public async addExpertise(@Req() req:Request ){
-    const expertise = await this.expertiseService.addExpertise(req.body.lebelle);
+
+    const expertise = await this.expertiseService.addExpertise(req.body);
     return expertise;
   }
 
