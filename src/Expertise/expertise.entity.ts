@@ -89,6 +89,7 @@ export class Expertise extends BaseEntity{
     if (oldExpertise) {
       oldExpertise.idExpertise = parseInt(expertise.idExpertise);
       oldExpertise.libelle = expertise.libelle;
+      oldExpertise.type=expertise.type;
 
       await Expertise.save(oldExpertise);
 
