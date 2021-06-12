@@ -33,10 +33,8 @@ export class Cities extends BaseEntity{
   @Column()
   gps_lng: number;
 
-
   @ManyToOne(type => Departments, departments => departments.cities, { nullable: false, onDelete: 'CASCADE' })
   public department_code: Departments;
-
 
   @JsonProperty('maquilleuses')
   @OneToMany(type => Maquilleuse, maquilleuse => maquilleuse.citiesIdId)
@@ -82,16 +80,28 @@ export class Cities extends BaseEntity{
 
   public static async findCityByCodeAndCity(name: string, code: string): Promise<Cities> {
 
-    console.log('city name:' + name + ' code:' +code);
+    console.log('city name:' + name + ' code:' + code);
     const mcit: Cities = await getRepository(Cities)
       .createQueryBuilder('Cities')
-      .where('UPPER(city) = \'' + name.toUpperCase() + '\' and code = \'' + code + '\'')
+        .where('cities.code = \'' + +code + '\'')
       .getOne();
+/*
+    const mcit = await Cities.findOne({ code: +code });
+*/
+    console.log(mcit);
     if (mcit) {
       console.log('city:' + mcit.city);
       return Promise.resolve(mcit);
     } else {
-      throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
+      const city = new Cities();
+      city.code = code;
+      city.department_code = code.substr(0,2);
+      city.insee_code = '0000';
+      city.city = name;
+      city.slug = name;
+      city.gps_lat = 46.15678199203189;
+      city.gps_lat = 46.15678199203189;
+      return Promise.resolve(city);
     }
 
   }

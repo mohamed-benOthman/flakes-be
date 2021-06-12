@@ -6,3 +6,4 @@ export const MailFlakes='manaserv@gmail.com';
 export const sactive = '0nH1wwBLIDEpRchtbFvVNvlgLmrHgWMyO9xpNPrLVinMkqtDoqESsO739f6dykyvYLquLoQwpCV6edRYcBFaeI1zFrzFOvXhbpW4F8DcqPxm9q42z3Ligyi1ROBhHs';
 export const autovalidAdmin=0;
 export const dnsFlakes='http://82.165.253.223:3050/';
+export const host= 'http://localhost:4205/';

@@ -68,6 +68,8 @@ export class UserService implements IUserService{
         }*/
     }
 
+
+
     public generateJWT(user) {
 
       console.log('1 ---- Set Date ok= login:');
@@ -123,6 +125,14 @@ export class UserService implements IUserService{
         //console.log("1 user:");
         //console.log("user:"+user.login);
         return user;
+    }
+
+
+    async checkConfimationToken(id:string, token: string):Promise<any>{
+
+        const res=await User.checkConfirmationToken(id,token);
+        return res;
+
     }
 
     /*

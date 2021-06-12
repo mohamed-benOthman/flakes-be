@@ -62,6 +62,15 @@ export class ExpertiseController {
     return expertise;
   }
 
+  @Get('/type/:type')
+  @ApiOperation({title: 'Lister les expertises dont le type saisie'})
+  @ApiResponse({ status: 200, description: 'Expertises trouvées.'})
+  @ApiResponse({ status: 404, description: 'Pas de expertise trouvée.'})
+  public async getExpertiseFromId(@Param('id') id: number) {
+    const expertise: Expertise = await this.expertiseService.findExpertiseById(id);
+    return expertise;
+  }
+
   @Put('/updateExpertise')
   @ApiOperation({title: 'modify the expertise choisie'})
   @ApiResponse({status: 200})

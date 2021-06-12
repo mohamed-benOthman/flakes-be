@@ -41,6 +41,16 @@ export class UserController {
     return photos;
   }
 
+    @Post('/checkConfimationToken')
+    @ApiOperation({title: 'Vérifier le token en vérifiant l utilisateur'})
+    @ApiResponse({ status: 200, description: 'Processing succedeed'})
+    @ApiResponse({ status: 400, description: 'Processing failed'})
+
+    public async checkConfimationTokenController(@Body() body:any) {
+       return await this.userService.checkConfimationToken(body.id, body.token);
+
+
+    }
 
     @Get('activate/:code')
     @ApiOperation({title: 'Activate user'})
@@ -117,7 +127,7 @@ export class UserController {
 
       console.log('pass:'+_user.pass+' loginUserDto.password:'+loginUserDto.password+
             ' bcrypt:'+ToolService.getBCryptHash(loginUserDto.password));
-        if(bcrypt.compareSync(loginUserDto.password, _user.pass)===false){
+        if(bcrypt.compare(loginUserDto.password, _user.pass)===false){
        // if(ToolService.getHashMD5(loginUserDto.password)!==_user.pass){
            return 1401;
 

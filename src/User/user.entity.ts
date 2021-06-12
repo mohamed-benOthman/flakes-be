@@ -21,15 +21,20 @@ export class User extends BaseEntity{
   @Column({ length: 50 })
   pass: string;
 
-    @Column({ length: 20 })
+  @Column({ length: 20 })
     phone: string;
 
-    @Column()
+  @Column()
     valide: number;
 
-    @Column({ length: 250 })
+  @Column({ length: 250 })
     code: string;
 
+  @Column({ length: 400 })
+    token: string;
+
+  @Column()
+    verified: boolean;
 
     //@ManyToOne(type => Role, roles => roles.user, {nullable: false, onDelete: 'CASCADE'})
   @Column()
@@ -38,15 +43,12 @@ export class User extends BaseEntity{
     @Column()
     idMaquilleuse: number;
 
-
-    /*@OneToMany(type => Gift, gift => gift.User)
-    gifts: Gift[];
-
-    @OneToMany(type => GiftPosted, giftposted => giftposted.User)
-    giftposteds: GiftPosted[];*/
-
-  // @RelationId((photos: Photos) => photos.maquilleuse) // This is just to save the foreign key in this attribute.
-//  maquilleuseId: number = undefined
+    @Column({
+        type: 'timestamp',
+        nullable: false,
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    tokenDate: Date;
 
   public static async findAll(): Promise<User[]> {
 
@@ -72,11 +74,10 @@ export class User extends BaseEntity{
 
   }
 
-
-    public static async findUserByEmail(email:string): Promise<User> {
+    public static async findUserByEmail(email: string): Promise<User> {
         const user: User = await getRepository(User)
             .createQueryBuilder('user')
-            .where('user.email= \'' + email+'\'')
+            .where('user.email= \'' + email + '\'')
             .getOne();
         if (user != null) {
             return Promise.resolve(user);
@@ -86,10 +87,10 @@ export class User extends BaseEntity{
 
     }
 
-    public static async findUserByCode(code:string): Promise<User> {
+    public static async findUserByCode(code: string): Promise<User> {
         const user: User = await getRepository(User)
             .createQueryBuilder('user')
-            .where('user.code= \'' + code+'\'')
+            .where('user.code= \'' + code + '\'')
             .getOne();
         if (user != null) {
             return Promise.resolve(user);
@@ -99,23 +100,55 @@ export class User extends BaseEntity{
 
     }
 
+    public static async checkConfirmationToken(id: string, token: string): Promise<{ verified: boolean, message: string, timeout: boolean }>{
+        const user: User = await getRepository(User)
+            .createQueryBuilder('user')
+            .where('user.idUser= \'' + id + '\'')
+            .getOne();
+        if (user != null) {
 
-  public static async createUserMakup(makupuser: Maquilleuse,toUpdate:boolean): Promise<User> {
+            if (user.token === token)
+            {   const now = Date.now();
+                if ((now - Date.parse(user.tokenDate.toString())) > 604800000)
+               {
 
-    let user:User;
+                    return Promise.resolve({verified: false, message: 'depasser 24 heures', timeout: true});
+               }
+               else {
+                   if (user.verified === true)
+                       return Promise.resolve({verified: false, message: 'utilisateur déja vérifié', timeout: false});
+                   else {
+                       user.verified = true;
+                       await User.save(user);
+                       return Promise.resolve({verified: true, message: 'verifier avec succes', timeout: false});
+                   }
 
-    if(!toUpdate)
+               }
+            }
+
+            else
+                return Promise.resolve({verified: false, message: 'token not accepted', timeout: false});
+        } else {
+            throw new AppError(AppErrorEnum.NO_USERS_IN_DB);
+        }
+
+    }
+
+  public static async createUserMakup(makupuser: Maquilleuse, toUpdate: boolean): Promise<User> {
+
+    let user: User;
+
+    if (!toUpdate)
       user = new User();
     else{
       user = User.findOne({email: makupuser.emailAdress});
     }
-    user.login= makupuser.username;
-    user.email= makupuser.emailAdress;
+    user.login = makupuser.username;
+    user.email = makupuser.emailAdress;
     user.pass = makupuser.password;
     user.idMaquilleuse = makupuser.idMaquilleuse;
     user.phone = makupuser.phone;
-    user.roles=1;
-
+    user.roles = 1;
 
     const umakup: User = await User.save(user);
 
@@ -123,10 +156,9 @@ export class User extends BaseEntity{
 
   }
 
-
     public static async findUserByIdWithRole(emailUser: string): Promise<User> {
       console.log('findUserByIdWithRole');
-        const user = await getRepository(User)
+      const user = await getRepository(User)
             .createQueryBuilder('User')
             .leftJoinAndSelect('User.roles', 'Role')
             .where('User.email = \'' + emailUser + '\'')
@@ -136,42 +168,41 @@ export class User extends BaseEntity{
             console.error(err);
           });
 
-
-      console.log("user.idUSer:"+user.idUser);
-        return user;
+      console.log('user.idUSer:' + user.idUser);
+      return user;
     }
 
-    public static async createUser(email: string, login:string, pass: string, phoneUser:string, role:string ): Promise<User> {
-        let user: User = new User();
-        user.email= email;
-        user.login=login;
-        user.pass=pass;
-        user.phone=phoneUser;
-        user.roles=role;
-        console.log("phone:"+phoneUser);
+    public static async createUser(email: string, login: string, pass: string, phoneUser: string, role: string ): Promise<User> {
+        const user: User = new User();
+        user.email = email;
+        user.login = login;
+        user.pass = pass;
+        user.phone = phoneUser;
+        user.roles = role;
+        console.log('phone:' + phoneUser);
         const u: User = await User.save(user);
         return u;
 
     }
 
-    public static async updateUser(email: string, login:string, pass: string, phoneUser,role:string ): Promise<User> {
-        let user: User = await User.findOneByEmail(email);
+    public static async updateUser(email: string, login: string, pass: string, phoneUser, role: string ): Promise<User> {
+        const user: User = await User.findOneByEmail(email);
 
-        user.login=(login!=="")?login:user.login;
-        user.pass=(pass!=="")?pass:user.pass;
-        user.phone=(phoneUser!=="")?phoneUser:user.phone;
-        user.roles=(role!=="")?role:user.roles;
-        console.log("phone:"+phoneUser+" user.phone:"+user.phone);
+        user.login = (login !== '') ? login : user.login;
+        user.pass = (pass !== '') ? pass : user.pass;
+        user.phone = (phoneUser !== '') ? phoneUser : user.phone;
+        user.roles = (role !== '') ? role : user.roles;
+        console.log('phone:' + phoneUser + ' user.phone:' + user.phone);
         const u: User = await User.save(user);
         return u;
 
     }
 
-    public static async findOneByEmail(email:string){
+    public static async findOneByEmail(email: string){
 
         const user: User = await getRepository(User)
             .createQueryBuilder('user')
-            .where('user.email=\'' + email+'\'')
+            .where('user.email=\'' + email + '\'')
             .getOne();
         if (user != null) {
             return Promise.resolve(user);
@@ -180,11 +211,11 @@ export class User extends BaseEntity{
         }
     }
 
-    public static async findOneByCode(code:string){
+    public static async findOneByCode(code: string){
 
         const user: User = await getRepository(User)
             .createQueryBuilder('user')
-            .where('user.code=\'' + code+'\'')
+            .where('user.code=\'' + code + '\'')
             .getOne();
         if (user != null) {
             return Promise.resolve(user);

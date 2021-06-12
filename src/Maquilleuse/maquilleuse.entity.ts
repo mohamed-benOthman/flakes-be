@@ -25,6 +25,7 @@ import { Expertise } from '../Expertise/expertise.entity';
 import { AppSearchingTypeEnum } from '../common/error/AppSearchingTypeEnum';
 import { MaquilleuseI } from './interfaces/maquilleuse.interface';
 import {User} from '../User/user.entity';
+import {UserMailDto} from '../User/Model/UserMailDto';
 
 @Entity('maquilleuse')
 export class Maquilleuse extends BaseEntity{
@@ -51,7 +52,6 @@ export class Maquilleuse extends BaseEntity{
 
   @Column({ length: 400 })
   slogan: string;
-
 
   @Column({ length: 200 })
   photo_profile: string;
@@ -80,6 +80,9 @@ export class Maquilleuse extends BaseEntity{
 
   @Column()
   nbImages: number;
+
+
+
 
   public static async findAll(debut: number, cpt: number): Promise<Maquilleuse[]> {
     console.log('Find All execution');
@@ -254,10 +257,10 @@ export class Maquilleuse extends BaseEntity{
       u.slogan = user.slogan;
       u.street = user.street;
       u.movings = user.movings;
-      u.nbImages= user.nbImages;
+      u.nbImages = user.nbImages;
 
       console.log(u);
-      let makeupArt: Maquilleuse = await Maquilleuse.save(u);
+      const makeupArt: Maquilleuse = await Maquilleuse.save(u);
 
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
@@ -277,7 +280,7 @@ export class Maquilleuse extends BaseEntity{
         .getOne();
 
     if (u) {
-      let makeupArt: Maquilleuse = await Maquilleuse.remove(u);
+      const makeupArt: Maquilleuse = await Maquilleuse.remove(u);
 
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
@@ -624,6 +627,7 @@ export class Maquilleuse extends BaseEntity{
     if (user.cities) {
 
       tabCitie = user.cities.split(';');
+
       const city: Cities = await Cities.findCityByCodeAndCity(tabCitie[1], tabCitie[0]);
       console.log(' result city:' + city.city + ' code: ' + city.code);
       await Cities.save(city);
@@ -663,9 +667,32 @@ export class Maquilleuse extends BaseEntity{
 
     console.log('ukkk 2:' + u);
     console.log('u phone:' + u.phone);
-
+    console.log(Date.now());
     const maq: Maquilleuse = await Maquilleuse.save(u);
+    const userToSave: User = {
+      email: u.emailAdress,
+      idMaquilleuse: maq.idMaquilleuse,
+      pass: maq.password,
+      phone: maq.phone,
+      roles: 1,
+      login: maq.username,
+      verified:false,
+      token:ToolService.getBCryptHash(u.emailAdress),
 
+    };
+
+    await User.save(userToSave);
+    const userInEmail: UserMailDto = {
+      login: userToSave.login,
+      email:userToSave.email,
+      tel: userToSave.phone,
+    };
+    const userToInEmail: UserMailDto = {
+      login: userToSave.login,
+      email:userToSave.email,
+      tel: userToSave.phone,
+    };
+    ToolService.sendMailConfirmation(userInEmail, userToInEmail, 1, userToSave.token);
     return maq;
 
   }

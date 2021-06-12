@@ -26,6 +26,7 @@
     "@nestjs/typeorm": "^5.1.0",
     "@types/express-jwt": "0.0.40",
     "bcrypt": "^5.0.0",
+    "crypto": "^1.0.1",
     "express-jwt": "^5.3.1",
     "fastify-formbody": "^2.0.0",
     "json-typescript-mapper": "^1.1.3",
