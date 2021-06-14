@@ -6,6 +6,8 @@ import { Cities } from '../Cities/cities.entity';
 import { Role } from '../Role/role.entity';
 import { GiftPosted } from '../GiftPosted/giftposted.entity';
 import { JsonProperty } from 'json-typescript-mapper';
+import {ToolService} from '../common/tool/tool.service';
+import {UserMailDto} from './Model/UserMailDto';
 
 @Entity('User')
 export class User extends BaseEntity{
@@ -37,7 +39,7 @@ export class User extends BaseEntity{
     verified: boolean;
 
     //@ManyToOne(type => Role, roles => roles.user, {nullable: false, onDelete: 'CASCADE'})
-  @Column()
+    @Column()
     roles: number;
 
     @Column()
@@ -50,7 +52,16 @@ export class User extends BaseEntity{
     })
     tokenDate: Date;
 
-  public static async findAll(): Promise<User[]> {
+    @Column()
+    resetPassswordToken: string;
+
+    @Column({
+        type: 'timestamp',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    resetPassswordTokenDate: Date;
+
+    public static async findAll(): Promise<User[]> {
 
     const user: User[] = await User.find();
     if (user.length > 0) {
@@ -100,10 +111,70 @@ export class User extends BaseEntity{
 
     }
 
-    public static async checkConfirmationToken(id: string, token: string): Promise<{ verified: boolean, message: string, timeout: boolean }>{
+    public static async resendEmail(id: string): Promise<{ succeeded: boolean, verified: boolean}>{
         const user: User = await getRepository(User)
             .createQueryBuilder('user')
-            .where('user.idUser= \'' + id + '\'')
+            .where('user.email= \'' + id + '\'')
+            .getOne();
+
+        console.log(user);
+        if (user){
+            console.log('userFound');
+            if (user.verified === false){
+                const token = ToolService.getHashMD5(user.email);
+                user.token = token;
+                const currentDate = new Date();
+                const timestamp = currentDate.getTime();
+                user.tokenDate = currentDate;
+                await User.save(user);
+                const userToInEmail: UserMailDto = {
+                    login: user.login,
+                    email: user.email,
+                    tel: user.phone,
+                };
+                console.log(user.token);
+                ToolService.sendMailConfirmation(userToInEmail, userToInEmail, 1, user.token);
+                return Promise.resolve({succeeded: true, verified: false});
+            }
+            else{
+                console.log('verified');
+                return Promise.resolve({succeeded: false, verified: true});
+            }
+
+        }
+        else  return Promise.resolve({succeeded: false, verified: false});
+    }
+
+    public static async sendEmailWithPasswordToken(email: string): Promise<any>{
+        const user: User = await getRepository(User)
+            .createQueryBuilder('user')
+            .where('user.email= \'' + email + '\'')
+            .getOne();
+
+        const token = ToolService.getHashMD5(email);
+
+        if (user != null) {
+
+            user.resetPassswordToken = token;
+            user.resetPassswordTokenDate = new Date();
+            await User.save(user);
+            const userToInEmail: UserMailDto = {
+                login: user.login,
+                email: user.email,
+                tel: user.phone,
+            };
+            ToolService.sendMailConfirmation(userToInEmail, userToInEmail, 3, user.resetPassswordToken);
+            return Promise.resolve({succeeded: false});
+        } else {
+            throw new AppError(AppErrorEnum.NO_USERS_IN_DB);
+        }
+
+    }
+
+    public static async checkConfirmationToken(token: string): Promise<{ verified: boolean, message: string, timeout: boolean }>{
+        const user: User = await getRepository(User)
+            .createQueryBuilder('user')
+            .where('user.token= \'' + token + '\'')
             .getOne();
         if (user != null) {
 
@@ -134,7 +205,74 @@ export class User extends BaseEntity{
 
     }
 
-  public static async createUserMakup(makupuser: Maquilleuse, toUpdate: boolean): Promise<User> {
+    public static async checkResetPasswordToken(token: string): Promise<{ verified: boolean, message: string, timeout: boolean }>{
+        const user: User = await getRepository(User)
+            .createQueryBuilder('user')
+            .where('user.resetPassswordToken= \'' + token + '\'')
+            .getOne();
+        if (user != null) {
+
+            if ((user.resetPassswordToken === token) && (user.resetPassswordToken !== '0000'))
+            {   const now = Date.now();
+                if ((now - Date.parse(user.resetPassswordTokenDate.toString())) > 604800000)
+                {
+
+                    return Promise.resolve({verified: false, message: 'depasser 24 heures', timeout: true});
+                }
+
+                    else {
+
+                        return Promise.resolve({verified: true, message: 'verifier avec succes', timeout: false});
+                    }
+
+            }
+
+            else
+                return Promise.resolve({verified: false, message: 'token not accepted', timeout: false});
+        } else {
+            throw new AppError(AppErrorEnum.NO_USERS_IN_DB);
+        }
+
+    }
+
+    public static async resetPassword(token: string, password: string): Promise<any>{
+        const user: User = await getRepository(User)
+            .createQueryBuilder('user')
+            .where('user.resetPassswordToken= \'' + token + '\'')
+            .getOne();
+        if (user != null) {
+
+            if ((user.resetPassswordToken === token) && (user.resetPassswordToken !== '0000'))
+            {   const now = Date.now();
+
+
+
+                    user.pass = ToolService.getBCryptHash(password);
+                    user.resetPassswordToken = '0000';
+                    await User.save(user);
+                    const userToInEmail: UserMailDto = {
+                        login: user.login,
+                        email: user.email,
+                        tel: user.phone,
+                    };
+                    ToolService.sendResetEmailSuccess(userToInEmail,userToInEmail);
+                    return Promise.resolve({passwordReset: true});
+
+
+            }
+
+            else{
+                console.log("le bug est tres grave");
+                return Promise.resolve({passwordReset: false});
+            }
+
+        } else {
+            throw new AppError(AppErrorEnum.NO_USERS_IN_DB);
+        }
+
+    }
+
+    public static async createUserMakup(makupuser: Maquilleuse, toUpdate: boolean): Promise<User> {
 
     let user: User;
 

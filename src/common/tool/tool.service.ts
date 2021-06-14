@@ -23,7 +23,7 @@ export class ToolService {
         var myFormattedDate = day+sep+monthIndex+sep+year+(displayHour?("_"+ hours+sep_hour+minutes+sep_hour+seconds+sep_hour+milliseconds):"");
         */
 
-        let timestampNow = Date.now();
+        const timestampNow = Date.now();
         //console.log(timestampNow);
 
         return timestampNow;
@@ -31,15 +31,15 @@ export class ToolService {
 
     public static getCurrentDateWithFormat(sep: string, sep_hour: string, displayHour: boolean): string
     {
-        let date = new Date(); // had to remove the colon (:) after the T in order to make it work
-        let day = date.getDate();
-        let monthIndex = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
-        let year = date.getFullYear();
-        let minutes = date.getMinutes();
-        let hours = date.getHours();
-        let seconds = date.getSeconds();
-        let milliseconds = date.getMilliseconds();
-        let myFormattedDate = day + sep + monthIndex + sep + year + (displayHour ? ('_' + hours + sep_hour + minutes + sep_hour + seconds + sep_hour + milliseconds) : '');
+        const date = new Date(); // had to remove the colon (:) after the T in order to make it work
+        const day = date.getDate();
+        const monthIndex = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
+        const year = date.getFullYear();
+        const minutes = date.getMinutes();
+        const hours = date.getHours();
+        const seconds = date.getSeconds();
+        const milliseconds = date.getMilliseconds();
+        const myFormattedDate = day + sep + monthIndex + sep + year + (displayHour ? ('_' + hours + sep_hour + minutes + sep_hour + seconds + sep_hour + milliseconds) : '');
 
         //var timestampNow=Date.now();
        // console.log(timestampNow);
@@ -50,9 +50,10 @@ export class ToolService {
     public static getHashMD5(chaine: string): string{
 
        // const md5 = require('md5-nodejs');
-        let crypto = require('crypto');
+        const crypto = require('crypto');
 
-        const hash = crypto.createHash('md5',).update(chaine).digest('hex');
+        let hash = crypto.createHash('md5').update(chaine).digest('hex');
+        hash = hash.replace(/\//g, 'slash');
         return hash;
 
     }
@@ -63,40 +64,46 @@ export class ToolService {
       //console.log("1-3");
         const saltRounds = 10;
 
-        let salt = bcrypt.genSaltSync(saltRounds);
+        const salt = bcrypt.genSaltSync(saltRounds);
       //console.log("1-4");
-        let hash = bcrypt.hashSync(chaine, salt);
+        const hash = bcrypt.hashSync(chaine, salt);
       //console.log("1-5");
         return hash;
 
     }
 
-    public static sendMailConfirmation(userfrom: UserMailDto, userto: UserMailDto, type: number, token :string): string{
+    public static sendMailConfirmation(userfrom: UserMailDto, userto: UserMailDto, type: number, token: string): string{
 
-        let Mailjet = require('node-mailjet').connect(MailJetKey, MailJetSecrete);
+        const Mailjet = require('node-mailjet').connect(MailJetKey, MailJetSecrete);
         let templateid;
         let subject;
-       // console.log('cle Mail jet:'+MailJetKey+" MailJetSecrete"+MailJetSecrete);
-       // console.log("email From:"+userfrom.email);
-       // console.log("type:"+type);
 
-    //    var sendEmail = Mailjet.post('send', {'version': 'v3.1'});
+        let  url: string;
 
         if (type === 1){
-            templateid = 691123; subject = 'Confirmation d\'envoi';
+
+            templateid = 1535370; subject = 'Activation Compte';
+            url = host + 'confirmation/' + token;
         }
         else{
             if (type === 2){
                 templateid = 692719; subject = 'Confirmation de modification';
             }
+            if (type === 4){
+                templateid = 2960027;  // this case is used when the user has successfully changed his password
+                subject = 'Confirmation de réinitialisation du mot de passe';
+            }
             else{
+                //this is for password
                 if (type === 3){
+                    templateid = 1546081;
+                    subject = 'Mot de passe oublié';
+                    url = host + 'resetPassword/' + token;
 
                 }
 
             }
         }
-        //console.log("templateid:"+templateid);
 
         const request = Mailjet
             .post('send', {version: 'v3.1'})
@@ -113,10 +120,50 @@ export class ToolService {
                                 Name: '' + userto.login + '',
                             },
                         ],
-                        Subject: 'Greetings from Mailjet.',
-                        TextPart: 'My first Mailjet email',
-                        HTMLPart: '<a href="'+host+'confirmation/'+token+'">go to</a>',
-                        CustomID: 'AppGettingStartedTest',
+
+                        TemplateID: templateid,
+                        TemplateLanguage: true,
+                        Subject: subject,
+                        Variables: {
+                            activelink: url,
+                        },
+                    },
+                ],
+            });
+        request
+            .then((result) => {
+                console.log(result);
+            })
+            .catch((err) => {
+                console.log(err.statusCode);
+            });
+
+    }
+
+    public static sendResetEmailSuccess(userfrom: UserMailDto, userto: UserMailDto): string{
+
+        const Mailjet = require('node-mailjet').connect(MailJetKey, MailJetSecrete);
+
+         const request = Mailjet
+            .post('send', {version: 'v3.1'})
+            .request({
+                Messages: [
+                    {
+                        From: {
+                            Email: 'laetitiamiquel54@gmail.com',
+                            Name: 'laetitia',
+                        },
+                        To: [
+                            {
+                                Email: '' + userto.email + '',
+                                Name: '' + userto.login + '',
+                            },
+                        ],
+
+                        TemplateID: 2960027,
+                        TemplateLanguage: true,
+                        Subject: 'Mot de passe changé avec succés',
+
                     },
                 ],
             });
@@ -132,7 +179,7 @@ export class ToolService {
 
     public static sendMailUser(userfrom: UserMailDto, userto: UserMailDto, message: string): string{
 
-        let Mailjet = require('node-mailjet').connect(MailJetKey, MailJetSecrete);
+        const Mailjet = require('node-mailjet').connect(MailJetKey, MailJetSecrete);
         let templateid;
         const request = Mailjet
             .post('send', {version: 'v3.1'})
@@ -182,7 +229,7 @@ export class ToolService {
          */
 
         console.log('sendMail userfrom:' + userfrom.email + ' userto:' + userto.email);
-        let Mailjet = require('node-mailjet').connect(MailJetKey, MailJetSecrete);
+        const Mailjet = require('node-mailjet').connect(MailJetKey, MailJetSecrete);
         const request = Mailjet
             .post('send', {version: 'v3.1'})
             .request({
@@ -225,7 +272,7 @@ export class ToolService {
          */
 
             // console.log("sendMail idGift:"+idGift);
-        let Mailjet = require('node-mailjet').connect(MailJetKey, MailJetSecrete);
+        const Mailjet = require('node-mailjet').connect(MailJetKey, MailJetSecrete);
         const request = Mailjet
             .post('send', {version: 'v3.1'})
             .request({

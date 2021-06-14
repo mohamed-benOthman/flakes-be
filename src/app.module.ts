@@ -63,7 +63,7 @@ import {BanierePublicitaireModule} from './BanierePublicitaire/banierePublicitai
     ClientModule,
     DepartmentsModule,
     RegionsModule,
-      BanierePublicitaireModule,
+    BanierePublicitaireModule,
     CitiesModule, PhotosModule , ExpertiseModule , BusinessModule, ToolModule,
     FilesModule,UserModule,AuthModule
 ],
