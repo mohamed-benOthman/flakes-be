@@ -48,7 +48,7 @@ export class UserService implements IUserService{
     async findOne(loginUserDto: LoginUserDto): Promise<UserEntity> {
         const findOneOptions = {
             email: loginUserDto.email,
-            password: ToolService.getBCryptHash(loginUserDto.password),
+            password: await ToolService.getBCryptHash(loginUserDto.password),
            // password: crypto.createHmac('sha256', loginUserDto.password).digest('hex'),
         };
 
@@ -162,6 +162,11 @@ export class UserService implements IUserService{
         return user;
     }
 
+    async findUserByEmail2(email:string): Promise<User>{
+        const user = await this.userRepository.findOne({email: email});
+        return user;
+    }
+
     public async findById(idU: string): Promise<UserRO>{
         const user = await this.userRepository.findOne({idUser: idU});
         return user;
@@ -252,7 +257,7 @@ export class UserService implements IUserService{
     public async updateUserPass(user, newpass): Promise<User>{
 
         console.log('user login:' + user.login + ' email' + user.email + ' phone:' + user.phone);
-        user.pass = ToolService.getBCryptHash(newpass);
+        user.pass = await ToolService.getBCryptHash(newpass);
         console.log('update pass done');
         const u: User = await User.save(user);
         console.log('update user done');

@@ -4,6 +4,7 @@ import {ApiBearerAuth, ApiOperation, ApiResponse, ApiUseTags} from '@nestjs/swag
 import {Photos} from './photos.entity';
 
 import {Request, Response} from 'express';
+import {CreateMaquilleuseDto} from "../Maquilleuse/Model/CreateMaquilleuseDto";
 
 @ApiUseTags('photos')
 @Controller('photos')
@@ -21,6 +22,26 @@ export class PhotosController {
       .send(photos);
 
   }
+
+  @Post('add')
+  @ApiOperation({title: 'Aouter une photo'})
+  @ApiResponse({ status: 200, description: 'Photos ajoutes.'})
+  @ApiResponse({ status: 400, description: 'photos pas ajoute'})
+  public async addPhtotsMaquilleuse(@Body() body: any) {
+    const photos: Photos = await this.photosService.addPhotosToMaquilleuse(body.id, body.url);
+    return photos;
+  }
+
+  @Post('delete')
+  @ApiOperation({title: 'supprimer une photo'})
+  @ApiResponse({ status: 200, description: 'Photos supprime.'})
+  @ApiResponse({ status: 400, description: 'photos pas supprimé'})
+  public async deletePhotoOfMaquilleuse(@Body() body: any) {
+    const photos: Photos = await this.photosService.deletePhotoByUrl(body.url, body.id);
+    return photos;
+  }
+
+
 
   @Get(':id')
   @ApiOperation({title: 'Lister les photos commencant par le name saisi'})

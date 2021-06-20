@@ -20,7 +20,7 @@ export class User extends BaseEntity{
   @Column({ length: 150 })
   email: string;
 
-  @Column({ length: 50 })
+  @Column({ length: 200 })
   pass: string;
 
   @Column({ length: 20 })
@@ -246,8 +246,8 @@ export class User extends BaseEntity{
             {   const now = Date.now();
 
 
-
-                    user.pass = ToolService.getBCryptHash(password);
+                    console.log(password);
+                    user.pass = await TfoolService.getBCryptHash(password);
                     user.resetPassswordToken = '0000';
                     await User.save(user);
                     const userToInEmail: UserMailDto = {

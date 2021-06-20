@@ -74,7 +74,6 @@ export class UserController {
 
   }
 
-
   @Post('/resendEmail')
     @ApiOperation({title: 'Renvoyer email'})
     @ApiResponse({ status: 200, description: 'Processing succedeed'})
@@ -139,9 +138,10 @@ export class UserController {
     @ApiResponse({ status: 200, description: 'Processing succedeed'})
     @ApiResponse({ status: 500, description: 'Processing failed'})
 
-    public async login(@Body() loginUserDto: LoginUserDto): Promise<UserRO> {
+    public async login(@Body() loginUserDto: LoginUserDto): Promise<any> {
      // console.log('1');
-      const _user = await this.userService.findOne(loginUserDto);
+      const _user = await this.userService.findUserByEmail2(loginUserDto.email);
+      console.log(_user);
      // console.log('2');
       const bcrypt = require('bcrypt');
      // console.log('3');
@@ -150,23 +150,37 @@ export class UserController {
       if (!_user) throw new HttpException({errors}, 401);
      // console.log('4');
 
-      console.log('pass:' + _user.pass + ' loginUserDto.password:' + loginUserDto.password +
+     /* console.log('pass:' + _user.pass + ' loginUserDto.password:' + loginUserDto.password +
             ' bcrypt:' + ToolService.getBCryptHash(loginUserDto.password));
       if (bcrypt.compare(loginUserDto.password, _user.pass) === false){
        // if(ToolService.getHashMD5(loginUserDto.password)!==_user.pass){
            return 1401;
 
         }
-      console.log('id User:' + _user.idUser);
-      console.log('email User:' + _user.email);
-      console.log('username User:' + _user.login);
-      const userna: string = _user.login;
-      const role: string = _user.roles;
-      console.log('role:' + _user.roles);
-      const token = await this.userService.generateJWTLog(_user);
-      const {email, username} = _user;
-      const user = {email, token, userna, role};
-      return {user};
+
+*/
+      const newPass = await ToolService.getBCryptHash( _user.pass);
+      console.log(newPass);
+      const match = await bcrypt.compare(loginUserDto.password.trim(), _user.pass);
+      const match2 = await bcrypt.compare(loginUserDto.password.trim(), newPass);
+      console.log(loginUserDto.password);
+      console.log(_user.pass);
+      console.log(match);
+      console.log(match2);
+
+      if (match){
+  const userna: string = _user.login;
+  const role: string = _user.roles;
+  const idMaquilleuse : string = _user.idMaquilleuse;
+  const idUser : string = _user.idUser;
+  console.log('role:' + _user.roles);
+  const token = await this.userService.generateJWTLog(_user);
+  const {email, username} = _user;
+  const user = {email, token, userna, role, idMaquilleuse, idUser};
+  return {user};
+      }
+    else
+        throw new HttpException({passFailed}, 400);
     }
 
     @Post('gettoken')

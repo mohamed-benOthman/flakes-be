@@ -72,7 +72,7 @@ export class Maquilleuse extends BaseEntity{
   /*@ManyToOne(type => Departments, departments => departments.maquilleuses, { nullable: false, onDelete: 'CASCADE' })
   public department_code: Departments;*/
 
-  @Column({ length: 50 })
+  @Column({ length: 200 })
   password: string;
 
   @Column()
@@ -80,9 +80,6 @@ export class Maquilleuse extends BaseEntity{
 
   @Column()
   nbImages: number;
-
-
-
 
   public static async findAll(debut: number, cpt: number): Promise<Maquilleuse[]> {
     console.log('Find All execution');
@@ -612,7 +609,7 @@ export class Maquilleuse extends BaseEntity{
     u.username = user.username;
     u.lastname = user.lastname;
     u.emailAdress = user.emailAdress;
-    u.password = ToolService.getBCryptHash(user.password);
+    u.password = await ToolService.getBCryptHash(user.password);
     u.phone = user.phone;
     u.photo_profile = user.photo_profile;
     u.slogan = user.slogan;
@@ -676,22 +673,23 @@ export class Maquilleuse extends BaseEntity{
       phone: maq.phone,
       roles: 1,
       login: maq.username,
-      verified:false,
-      token:ToolService.getBCryptHash(u.emailAdress),
+      verified: false,
+      token: ToolService.getHashMD5(u.emailAdress),
 
     };
-
+    if (!isUpdate)
     await User.save(userToSave);
     const userInEmail: UserMailDto = {
       login: userToSave.login,
-      email:userToSave.email,
+      email: userToSave.email,
       tel: userToSave.phone,
     };
     const userToInEmail: UserMailDto = {
       login: userToSave.login,
-      email:userToSave.email,
+      email: userToSave.email,
       tel: userToSave.phone,
     };
+    if (!isUpdate)
     ToolService.sendMailConfirmation(userInEmail, userToInEmail, 1, userToSave.token);
     return maq;
 

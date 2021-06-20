@@ -19,8 +19,16 @@ export class PhotosService implements IPhotosService{
     return await Photos.findPhotosById(id);
   }
 
+  async addPhotosToMaquilleuse(maquilleuseId, url): Promise<Photos> {
+    return await Photos.addPhotoToMaquilleuse(maquilleuseId, url);
+  }
+
   async deleteById(id): Promise<Photos> {
     return await Photos.deletePhotosById(id);
+  }
+
+  async deletePhotoByUrl(url, idMaquilleuse): Promise<Photos> {
+    return await Photos.deletePhotosByUrl(url, idMaquilleuse);
   }
 
 }

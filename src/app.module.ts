@@ -35,7 +35,7 @@ import {BanierePublicitaireModule} from './BanierePublicitaire/banierePublicitai
         port: 3306,
         username: 'root',
         password: '',
-        database: 'Flakes',
+        database: 'Flakes3',
         synchronize: false,
         entities: ['src/**/**.entity{.ts,.js}'],
         migrations: [

@@ -13,10 +13,9 @@ export class FilesService {
     return {path, type};
   }*/
 
-  public async provideFile(fichier: FileUploaded): Promise<Photos>{
+  public async provideFile(fichier: FileUploaded): Promise<any>{
     const chem = this.saveFile(fichier);
     console.log('chemin' + chem);
-
 
     console.log('url phot:' + this.urlUpload + fichier.originalname);
 

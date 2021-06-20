@@ -58,16 +58,16 @@ export class ToolService {
 
     }
 
-    public static getBCryptHash(chaine: string): string{
-      //console.log("1-2");
+    public static async getBCryptHash(chaine: string): string{
+
         const bcrypt = require('bcrypt');
-      //console.log("1-3");
+
         const saltRounds = 10;
 
-        const salt = bcrypt.genSaltSync(saltRounds);
-      //console.log("1-4");
-        const hash = bcrypt.hashSync(chaine, salt);
-      //console.log("1-5");
+        const salt = await bcrypt.genSaltSync(saltRounds);
+
+        const hash = await bcrypt.hash(chaine, salt);
+
         return hash;
 
     }
@@ -125,6 +125,7 @@ export class ToolService {
                         TemplateLanguage: true,
                         Subject: subject,
                         Variables: {
+                            name: userto.login,
                             activelink: url,
                         },
                     },
