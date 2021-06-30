@@ -57,4 +57,7 @@ export class CreateMaquilleuseDto {
   @ApiModelProperty()
   nbImages: number;
 
+  @ApiModelProperty()
+  idOffre: number;
+
 }

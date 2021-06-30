@@ -8,34 +8,35 @@ import { GiftPosted } from '../GiftPosted/giftposted.entity';
 import { JsonProperty } from 'json-typescript-mapper';
 import {ToolService} from '../common/tool/tool.service';
 import {UserMailDto} from './Model/UserMailDto';
+import {Maquilleuse} from "../Maquilleuse/maquilleuse.entity";
 
 @Entity('User')
 export class User extends BaseEntity{
-  @PrimaryGeneratedColumn()
-  idUser: number;
+    @PrimaryGeneratedColumn()
+    idUser: number;
 
-  @Column({ length: 150 })
-  login: string;
+    @Column({ length: 150 })
+    login: string;
 
-  @Column({ length: 150 })
-  email: string;
+    @Column({ length: 150 })
+    email: string;
 
-  @Column({ length: 200 })
-  pass: string;
+    @Column({ length: 200 })
+    pass: string;
 
-  @Column({ length: 20 })
+    @Column({ length: 20 })
     phone: string;
 
-  @Column()
+    @Column()
     valide: number;
 
-  @Column({ length: 250 })
+    @Column({ length: 250 })
     code: string;
 
-  @Column({ length: 400 })
+    @Column({ length: 400 })
     token: string;
 
-  @Column()
+    @Column()
     verified: boolean;
 
     //@ManyToOne(type => Role, roles => roles.user, {nullable: false, onDelete: 'CASCADE'})
@@ -63,27 +64,27 @@ export class User extends BaseEntity{
 
     public static async findAll(): Promise<User[]> {
 
-    const user: User[] = await User.find();
-    if (user.length > 0) {
-      return Promise.resolve(user);
-    } else {
-      throw new AppError(AppErrorEnum.NO_USER_IN_DB);
+        const user: User[] = await User.find();
+        if (user.length > 0) {
+            return Promise.resolve(user);
+        } else {
+            throw new AppError(AppErrorEnum.NO_USER_IN_DB);
+        }
+
     }
 
-  }
+    public static async findUserById(idUser): Promise<User> {
+        const user: User = await getRepository(User)
+            .createQueryBuilder('user')
+            .where('user.idUser=' + idUser)
+            .getOne();
+        if (user != null) {
+            return Promise.resolve(user);
+        } else {
+            throw new AppError(AppErrorEnum.NO_USER_IN_RESULT);
+        }
 
-  public static async findUserById(idUser): Promise<User> {
-    const user: User = await getRepository(User)
-      .createQueryBuilder('user')
-      .where('user.idUser=' + idUser)
-      .getOne();
-    if (user != null) {
-      return Promise.resolve(user);
-    } else {
-      throw new AppError(AppErrorEnum.NO_USER_IN_RESULT);
     }
-
-  }
 
     public static async findUserByEmail(email: string): Promise<User> {
         const user: User = await getRepository(User)
@@ -181,20 +182,22 @@ export class User extends BaseEntity{
             if (user.token === token)
             {   const now = Date.now();
                 if ((now - Date.parse(user.tokenDate.toString())) > 604800000)
-               {
+                {
 
                     return Promise.resolve({verified: false, message: 'depasser 24 heures', timeout: true});
-               }
-               else {
-                   if (user.verified === true)
-                       return Promise.resolve({verified: false, message: 'utilisateur déja vérifié', timeout: false});
-                   else {
-                       user.verified = true;
-                       await User.save(user);
-                       return Promise.resolve({verified: true, message: 'verifier avec succes', timeout: false});
-                   }
+                }
+                else {
 
-               }
+                    if (user.verified === true)
+                        return Promise.resolve({verified: false, message: 'utilisateur déja vérifié', timeout: false});
+                    else {
+                        const maq:Maquilleuse = await Maquilleuse.getMaquilleuseByUsernameForPayment(user.login);
+                        user.verified = true;
+                        await User.save(user);
+                        return Promise.resolve({verified: true, message: 'verifier avec succes', timeout: false, email:user.email, offre:maq.offre});
+                    }
+
+                }
             }
 
             else
@@ -220,10 +223,10 @@ export class User extends BaseEntity{
                     return Promise.resolve({verified: false, message: 'depasser 24 heures', timeout: true});
                 }
 
-                    else {
+                else {
 
-                        return Promise.resolve({verified: true, message: 'verifier avec succes', timeout: false});
-                    }
+                    return Promise.resolve({verified: true, message: 'verifier avec succes', timeout: false});
+                }
 
             }
 
@@ -246,17 +249,17 @@ export class User extends BaseEntity{
             {   const now = Date.now();
 
 
-                    console.log(password);
-                    user.pass = await TfoolService.getBCryptHash(password);
-                    user.resetPassswordToken = '0000';
-                    await User.save(user);
-                    const userToInEmail: UserMailDto = {
-                        login: user.login,
-                        email: user.email,
-                        tel: user.phone,
-                    };
-                    ToolService.sendResetEmailSuccess(userToInEmail,userToInEmail);
-                    return Promise.resolve({passwordReset: true});
+                console.log(password);
+                user.pass = await TfoolService.getBCryptHash(password);
+                user.resetPassswordToken = '0000';
+                await User.save(user);
+                const userToInEmail: UserMailDto = {
+                    login: user.login,
+                    email: user.email,
+                    tel: user.phone,
+                };
+                ToolService.sendResetEmailSuccess(userToInEmail,userToInEmail);
+                return Promise.resolve({passwordReset: true});
 
 
             }
@@ -274,40 +277,40 @@ export class User extends BaseEntity{
 
     public static async createUserMakup(makupuser: Maquilleuse, toUpdate: boolean): Promise<User> {
 
-    let user: User;
+        let user: User;
 
-    if (!toUpdate)
-      user = new User();
-    else{
-      user = User.findOne({email: makupuser.emailAdress});
+        if (!toUpdate)
+            user = new User();
+        else{
+            user = User.findOne({email: makupuser.emailAdress});
+        }
+        user.login = makupuser.username;
+        user.email = makupuser.emailAdress;
+        user.pass = makupuser.password;
+        user.idMaquilleuse = makupuser.idMaquilleuse;
+        user.phone = makupuser.phone;
+        user.roles = 1;
+
+        const umakup: User = await User.save(user);
+
+        return umakup;
+
     }
-    user.login = makupuser.username;
-    user.email = makupuser.emailAdress;
-    user.pass = makupuser.password;
-    user.idMaquilleuse = makupuser.idMaquilleuse;
-    user.phone = makupuser.phone;
-    user.roles = 1;
-
-    const umakup: User = await User.save(user);
-
-    return umakup;
-
-  }
 
     public static async findUserByIdWithRole(emailUser: string): Promise<User> {
-      console.log('findUserByIdWithRole');
-      const user = await getRepository(User)
+        console.log('findUserByIdWithRole');
+        const user = await getRepository(User)
             .createQueryBuilder('User')
             .leftJoinAndSelect('User.roles', 'Role')
             .where('User.email = \'' + emailUser + '\'')
             .getOne()
-          .catch((err) => {
-            console.log(err);
-            console.error(err);
-          });
+            .catch((err) => {
+                console.log(err);
+                console.error(err);
+            });
 
-      console.log('user.idUSer:' + user.idUser);
-      return user;
+        console.log('user.idUSer:' + user.idUser);
+        return user;
     }
 
     public static async createUser(email: string, login: string, pass: string, phoneUser: string, role: string ): Promise<User> {

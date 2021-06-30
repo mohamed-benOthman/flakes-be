@@ -9,7 +9,7 @@ import {
   RelationId,
   getRepository,
   ManyToMany,
-  JoinTable,
+  JoinTable, JoinColumn,
 } from 'typeorm';
 import {AppErrorEnum} from '../common/error/AppErrorEnum';
 import {AppError} from '../common/error/AppError';
@@ -26,6 +26,8 @@ import { AppSearchingTypeEnum } from '../common/error/AppSearchingTypeEnum';
 import { MaquilleuseI } from './interfaces/maquilleuse.interface';
 import {User} from '../User/user.entity';
 import {UserMailDto} from '../User/Model/UserMailDto';
+import {OffreCommerciale} from '../OffreCommerciale/offrecommerciale.entity';
+import {PaymentMethod} from '../payment-method/payment-method.entity';
 
 @Entity('maquilleuse')
 export class Maquilleuse extends BaseEntity{
@@ -61,6 +63,10 @@ export class Maquilleuse extends BaseEntity{
   @ManyToOne(type => Cities, cities => cities.maquilleuses, { nullable: false, onDelete: 'CASCADE' })
   cities: Cities;
 
+  @OneToOne(() => OffreCommerciale)
+  @JoinColumn()
+  offre: OffreCommerciale;
+
   @ManyToMany(type => Business)
   @JoinTable()
   business: Business[];
@@ -68,6 +74,10 @@ export class Maquilleuse extends BaseEntity{
   @ManyToMany(type => Expertise)
   @JoinTable()
   expertises: Expertise[];
+
+  @OneToOne((type) => PaymentMethod)
+  @JoinColumn()
+  paymentMethod: PaymentMethod;
 
   /*@ManyToOne(type => Departments, departments => departments.maquilleuses, { nullable: false, onDelete: 'CASCADE' })
   public department_code: Departments;*/
@@ -80,6 +90,9 @@ export class Maquilleuse extends BaseEntity{
 
   @Column()
   nbImages: number;
+
+  @Column()
+  subsciptionPaid: boolean;
 
   public static async findAll(debut: number, cpt: number): Promise<Maquilleuse[]> {
     console.log('Find All execution');
@@ -293,6 +306,27 @@ export class Maquilleuse extends BaseEntity{
         .leftJoinAndSelect('maquilleuse.cities', 'cities')
         .leftJoinAndSelect('maquilleuse.business', 'business')
         .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
+        .where('maquilleuse.username = \'' + user + '\'')
+        .getOne();
+
+    if (u) {
+      return Promise.resolve(u);
+
+    } else {
+      throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
+      throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
+    }
+
+  }
+  public static async getMaquilleuseByUsernameForPayment(user: any) {
+    console.log(user);
+    const u: Maquilleuse = await getRepository(Maquilleuse)
+        .createQueryBuilder('maquilleuse')
+        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
+        .leftJoinAndSelect('maquilleuse.cities', 'cities')
+        .leftJoinAndSelect('maquilleuse.business', 'business')
+        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
+        .leftJoinAndSelect('maquilleuse.offre', 'offre_commerciale')
         .where('maquilleuse.username = \'' + user + '\'')
         .getOne();
 
@@ -575,6 +609,32 @@ export class Maquilleuse extends BaseEntity{
 
   }
 
+  public static async findMaquilleuseByEmailPayment(email: string): Promise<Maquilleuse> {
+
+    const emailMod = email.replace('%40', '@' );
+    console.log('email:' + email);
+    console.log('decodeURI(email):' + emailMod);
+    const  martistEmail: Maquilleuse = await getRepository(Maquilleuse)
+        .createQueryBuilder('maquilleuse')
+        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
+        .leftJoinAndSelect('maquilleuse.cities', 'cities')
+        .leftJoinAndSelect('maquilleuse.business', 'business')
+        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
+        .leftJoinAndSelect('maquilleuse.paymentMethod', 'payment_method')
+        .where('maquilleuse.emailAdress = \'' + emailMod + '\'')
+        .getOne()
+        .catch((err) => {
+          console.log(err);
+          console.error(err);
+        });
+    if (martistEmail !== undefined) {
+      return Promise.resolve(martistEmail);
+    } else {
+      throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
+    }
+
+  }
+
   public static async createMakeup(user: CreateMaquilleuseDto, isUpdate: boolean, u: Maquilleuse): Promise<Maquilleuse> {
     let ucmail: Maquilleuse;
 
@@ -605,12 +665,14 @@ export class Maquilleuse extends BaseEntity{
     console.log('User id Maquilleuse:' + u.idMaquilleuse);
     console.log('User password:' + user.password);
     console.log('User phone:' + user.phone);
+    const offre: OffreCommerciale = await OffreCommerciale.findOne({idOffre: user.idOffre});
     u.firstname = user.firstname;
     u.username = user.username;
     u.lastname = user.lastname;
     u.emailAdress = user.emailAdress;
     u.password = await ToolService.getBCryptHash(user.password);
     u.phone = user.phone;
+    u.offre = offre;
     u.photo_profile = user.photo_profile;
     u.slogan = user.slogan;
     u.street = user.street;

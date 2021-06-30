@@ -11,7 +11,7 @@ import {
   Req,
   Res,
   Session,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import {MaquilleuseService} from './maquilleuse.service';
 import {ApiBearerAuth, ApiOperation, ApiResponse, ApiUseTags} from '@nestjs/swagger';
@@ -23,6 +23,7 @@ import { type } from 'os';
 import {RolesGuard} from '../guards/roles.guard';
 import { UserRole } from '../User/Model/user-role.enum';
 import { Roles } from '../decorators/roles.decorator';
+import {PaymentMethod} from '../payment-method/payment-method.entity';
 
 @ApiUseTags('maquilleuse')
 @Controller('maquilleuse')
@@ -132,16 +133,36 @@ return await this.maquilleuseService.findAllMaquilleuseNbr(parametre, type);
     return res.status(HttpStatus.OK).send();
   }
 
- /* @Get('/:parametre/:type')
-  @ApiOperation({title: 'Indique si la maquilleuse existe'})
-  @ApiResponse({ status: 200, description: 'Maquilleuse trouvé.'})
-  @ApiResponse({ status: 404, description: 'Pas de maquilleuse trouvé.'})
-  public async isMaquilleuseExisted(@Param('parametre') parametre: string, @Param('type') type: number) {
+  @Post('pay')
+  public async login(@Req() req: Request) {
+    console.log(req.body);
+    if (req.body.vads_trans_status === 'ACCEPTED') {
+      const paymentMedthod: PaymentMethod = {
+        token: req.body.vads_identifier,
+        subscriptionDate: req.body.vads_trans_date,
+      };
+      console.log(paymentMedthod);
 
-    console.log('isMaquilleuse parametre:' + parametre + ' type:' + type);
-    return await this.maquilleuseService.isMaquilleuseExisted(parametre, type);
-    /*   .catch((err) => {
-               console.error(err);
-             });
-  }*/
+      const payment = await PaymentMethod.save(paymentMedthod);
+      console.log(payment);
+      const maq = await Maquilleuse.findMaquilleuseByEmailPayment(req.body.vads_cust_email);
+      console.log(maq);
+      maq.subsciptionPaid=true;
+      maq.paymentMethod = payment;
+      await Maquilleuse.save(maq);
+
+    }
+  }
+  /* @Get('/:parametre/:type')
+   @ApiOperation({title: 'Indique si la maquilleuse existe'})
+   @ApiResponse({ status: 200, description: 'Maquilleuse trouvé.'})
+   @ApiResponse({ status: 404, description: 'Pas de maquilleuse trouvé.'})
+   public async isMaquilleuseExisted(@Param('parametre') parametre: string, @Param('type') type: number) {
+
+     console.log('isMaquilleuse parametre:' + parametre + ' type:' + type);
+     return await this.maquilleuseService.isMaquilleuseExisted(parametre, type);
+     /*   .catch((err) => {
+                console.error(err);
+              });
+   }*/
 }
