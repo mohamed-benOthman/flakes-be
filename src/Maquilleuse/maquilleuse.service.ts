@@ -73,6 +73,12 @@ export class MaquilleuseService implements IMaquilleuseService{
     return await Maquilleuse.findMaquilleuseByEmail(email);
   }
 
+  async findMaquilleuseByUserNamePayment(userName: string): Promise<any> {
+    return await Maquilleuse.getMaquilleuseByUsernameForPayment2(userName);
+  }
+
+
+
 
 
   public async createUser(user: CreateMaquilleuseDto, isUpdate: boolean): Promise<Maquilleuse> {

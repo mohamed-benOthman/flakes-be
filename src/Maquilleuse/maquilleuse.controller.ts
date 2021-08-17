@@ -153,16 +153,11 @@ return await this.maquilleuseService.findAllMaquilleuseNbr(parametre, type);
 
     }
   }
-  /* @Get('/:parametre/:type')
-   @ApiOperation({title: 'Indique si la maquilleuse existe'})
-   @ApiResponse({ status: 200, description: 'Maquilleuse trouvé.'})
-   @ApiResponse({ status: 404, description: 'Pas de maquilleuse trouvé.'})
-   public async isMaquilleuseExisted(@Param('parametre') parametre: string, @Param('type') type: number) {
+  @Get('/payment-details/:username')
+  @ApiOperation({title: 'les details de paiement trouve'})
+  @ApiResponse({status: 200})
+  @ApiResponse({status: 404})
+  public async getMaquilleuseByUsername(@Param('username') username: string){
+    return this.maquilleuseService.findMaquilleuseByUserNamePayment(username);}
 
-     console.log('isMaquilleuse parametre:' + parametre + ' type:' + type);
-     return await this.maquilleuseService.isMaquilleuseExisted(parametre, type);
-     /*   .catch((err) => {
-                console.error(err);
-              });
-   }*/
 }

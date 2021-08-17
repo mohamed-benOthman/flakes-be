@@ -339,6 +339,33 @@ export class Maquilleuse extends BaseEntity{
     }
 
   }
+
+  public static async getMaquilleuseByUsernameForPayment2(user: any) {
+    console.log(user);
+    const u: Maquilleuse = await getRepository(Maquilleuse)
+        .createQueryBuilder('maquilleuse')
+        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
+        .leftJoinAndSelect('maquilleuse.cities', 'cities')
+        .leftJoinAndSelect('maquilleuse.business', 'business')
+        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
+        .leftJoinAndSelect('maquilleuse.offre', 'offre_commerciale')
+        .leftJoinAndSelect('maquilleuse.paymentMethod', 'payment_method')
+        .where('maquilleuse.username = \'' + user + '\'')
+        .getOne();
+
+    if (u) {
+      const result = {
+        offre : u.offre,
+        paymentMethod: u.paymentMethod,
+      };
+      return Promise.resolve(result);
+
+    } else {
+      throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
+      throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
+    }
+
+  }
   public static async getAllMaquilleuses2(): Promise<Maquilleuse> {
 
     const martist: Maquilleuse = await getRepository(Maquilleuse)
@@ -515,6 +542,7 @@ export class Maquilleuse extends BaseEntity{
     }
 
     if (martists.length > 0) {
+
       return Promise.resolve(martists);
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
