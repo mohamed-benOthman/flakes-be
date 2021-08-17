@@ -16,8 +16,9 @@ export class ExpertiseService implements IExpertiseService{
     return await this.expertiseRepository.find();
   }
 
-  async addExpertise(lebelle:string): Promise<Expertise>{
-    return await Expertise.addExpertise(lebelle);
+  async addExpertise(expertise:any): Promise<Expertise>{
+
+    return await Expertise.addExpertise(expertise.lebelle, expertise.type);
   }
   async findExpertiseById(id): Promise<Expertise> {
     return await Expertise.findExpertiseById(id);

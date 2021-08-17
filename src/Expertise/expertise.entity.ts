@@ -14,6 +14,10 @@ export class Expertise extends BaseEntity{
 
   @Column({ length: 150 })
   libelle: string;
+
+  @Column({ length: 150 })
+  type: string;
+
   @ManyToMany(type => Maquilleuse)
   @JoinTable()
   maquilleuses: Maquilleuse[];
@@ -58,15 +62,17 @@ export class Expertise extends BaseEntity{
       throw new AppError(AppErrorEnum.NO_EXPERTISE_IN_DB);    }
 
   }
-  public static async addExpertise(lebelle: string): Promise<Expertise>{
+  public static async addExpertise(lebelle,type): Promise<Expertise>{
+
     const expertise: Expertise = await getRepository(Expertise)
         .createQueryBuilder('expertise')
         .where('expertise.libelle= \'' + lebelle + '\'')
         .getOne();
-    console.log(expertise);
     if (expertise == null) {
+
       const newExpertise = Expertise.create();
       newExpertise.libelle = lebelle;
+      newExpertise.type=type;
       await Expertise.save(newExpertise);
       return Promise.resolve(newExpertise);
     }
@@ -83,6 +89,7 @@ export class Expertise extends BaseEntity{
     if (oldExpertise) {
       oldExpertise.idExpertise = parseInt(expertise.idExpertise);
       oldExpertise.libelle = expertise.libelle;
+      oldExpertise.type=expertise.type;
 
       await Expertise.save(oldExpertise);
 

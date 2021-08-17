@@ -73,10 +73,19 @@ export class MaquilleuseService implements IMaquilleuseService{
     return await Maquilleuse.findMaquilleuseByEmail(email);
   }
 
+  async findMaquilleuseByUserNamePayment(userName: string): Promise<any> {
+    return await Maquilleuse.getMaquilleuseByUsernameForPayment2(userName);
+  }
+
+
+
+
+
   public async createUser(user: CreateMaquilleuseDto, isUpdate: boolean): Promise<Maquilleuse> {
 
     console.log('User:' + user.idMaquilleuse);
-
+    console.log('la maquilleuse ::::::');
+    console.log(user);
     const u: Maquilleuse = await Maquilleuse.findOne({idMaquilleuse: user.idMaquilleuse});
 
     if (!u) {
@@ -89,7 +98,7 @@ export class MaquilleuseService implements IMaquilleuseService{
     console.log('u:' + u);
     const userresult: Maquilleuse = await Maquilleuse.createMakeup(user, isUpdate, u);
 
-    if ((userresult != 1001) && (userresult != 1002)){
+/*    if ((userresult != 1001) && (userresult != 1002)){
 
         const usmaq: User = await User.createUserMakup(userresult, isUpdate);
 
@@ -105,7 +114,7 @@ export class MaquilleuseService implements IMaquilleuseService{
             email: uresult.email,
           }, uresult.code);
         }
-    }
+    }*/
     return userresult;
 
   }

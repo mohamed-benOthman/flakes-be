@@ -25,7 +25,9 @@ import { FilesModule } from './File/files.module';
 import {AuthenticationMiddleware} from './common/middleware/authentication.middleware';
 import { MiddlewaresConsumer } from '@nestjs/common/interfaces/middlewares';
 import {BanierePublicitaireModule} from './BanierePublicitaire/banierePublicitaire.module';
-
+import { PaymentMethodModule } from './payment-method/payment-method.module';
+import { PaymentMethodModule } from './payment-method/payment-method.module';
+import * as entities from './index-entities';
 @Module({
   imports: [
     TypeOrmModule.forRoot(
@@ -35,21 +37,23 @@ import {BanierePublicitaireModule} from './BanierePublicitaire/banierePublicitai
         port: 3306,
         username: 'root',
         password: '',
-        database: 'Flakes',
+        database: 'Flakes4',
         synchronize: false,
-        entities: ['src/**/**.entity{.ts,.js}'],
-        migrations: [
-          'src/migration/**/*.ts'
+          migrationsRun: false,
+          entities: ['src/**/**.entity{.ts,.js}'],
+
+       /* migrations: [
+          'src/migration/!**!/!*.ts'
         ],
         subscribers: [
-          'src/subscriber/**/*.ts'
+          'src/subscriber/!**!/!*.ts'
         ],
         cli: {
           'entitiesDir': 'src/entity',
           'migrationsDir': 'src/migration',
           'subscribersDir': 'src/subscriber'
         }
-
+*/
       }),
    // AuthModule,
     PrestationModule,
@@ -63,9 +67,9 @@ import {BanierePublicitaireModule} from './BanierePublicitaire/banierePublicitai
     ClientModule,
     DepartmentsModule,
     RegionsModule,
-      BanierePublicitaireModule,
+    BanierePublicitaireModule,
     CitiesModule, PhotosModule , ExpertiseModule , BusinessModule, ToolModule,
-    FilesModule,UserModule,AuthModule
+    FilesModule,UserModule,AuthModule, PaymentMethodModule
 ],
   controllers: [AppController],
   providers: [AppService],

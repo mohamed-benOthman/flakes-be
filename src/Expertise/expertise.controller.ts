@@ -48,12 +48,22 @@ export class ExpertiseController {
   @ApiResponse({status:200, description: 'Expertise ajoutee'})
   @ApiResponse({status:400, descriptiom : 'cette expertise est deja existe'})
   public async addExpertise(@Req() req:Request ){
-    const expertise = await this.expertiseService.addExpertise(req.body.lebelle);
+
+    const expertise = await this.expertiseService.addExpertise(req.body);
     return expertise;
   }
 
   @Get(':id')
   @ApiOperation({title: 'Lister les expertises dont l\'id est saisi'})
+  @ApiResponse({ status: 200, description: 'Expertises trouvées.'})
+  @ApiResponse({ status: 404, description: 'Pas de expertise trouvée.'})
+  public async getExpertiseFromId(@Param('id') id: number) {
+    const expertise: Expertise = await this.expertiseService.findExpertiseById(id);
+    return expertise;
+  }
+
+  @Get('/type/:type')
+  @ApiOperation({title: 'Lister les expertises dont le type saisie'})
   @ApiResponse({ status: 200, description: 'Expertises trouvées.'})
   @ApiResponse({ status: 404, description: 'Pas de expertise trouvée.'})
   public async getExpertiseFromId(@Param('id') id: number) {

@@ -29,36 +29,33 @@ export class UserService implements IUserService{
     return await this.userRepository.find();
   }
 
-  public async findUserById(id:number): Promise<User> {
+  public async findUserById(id: number): Promise<User> {
     return await User.findUserById(id);
   }
-
-
 
     async findById(id: number): Promise<UserRO>{
         const user = await User.findUserById(id);
 
         if (!user) {
-            console.log("401 find By Id");
+            console.log('401 find By Id');
             const errors = {User: ' not found'};
             throw new HttpException({errors}, 401);
-        };
+        }
 
         return this.buildUserRO(user);
     }
 
-
     async findOne(loginUserDto: LoginUserDto): Promise<UserEntity> {
         const findOneOptions = {
             email: loginUserDto.email,
-            password: ToolService.getBCryptHash(loginUserDto.password),
+            password: await ToolService.getBCryptHash(loginUserDto.password),
            // password: crypto.createHmac('sha256', loginUserDto.password).digest('hex'),
         };
 
        // const gift:Gift = await Gift.findGiftByIdWithUser(loginUserDto.idGift);
         //let userFound=await User.findOneByEmail(findOneOptions.email);
        // if(gift.User.email === loginUserDto.email) {
-            return await User.findOneByEmail(findOneOptions.email);
+        return await User.findOneByEmail(findOneOptions.email);
         /*}
         else{
 
@@ -71,14 +68,13 @@ export class UserService implements IUserService{
     public generateJWT(user) {
 
       console.log('1 ---- Set Date ok= login:');
-        let today = new Date();
-        let exp = new Date(today);
+      const today = new Date();
+      const exp = new Date(today);
 
-      console.log('2 ---- Set Date ok= login:'+user.login+' id:'+user.idUser+' email:'+user.email);
-        exp.setDate(today.getDate() + 60);
+      console.log('2 ---- Set Date ok= login:' + user.login + ' id:' + user.idUser + ' email:' + user.email);
+      exp.setDate(today.getDate() + 60);
 
-      console.log('Set Date ok= login:'+user.login+' id:'+user.idUser+' email:'+user.email);
-
+      console.log('Set Date ok= login:' + user.login + ' id:' + user.idUser + ' email:' + user.email);
 
       return jwt.sign({
             id: user.idUser,
@@ -86,26 +82,25 @@ export class UserService implements IUserService{
             email: user.email,
             exp: exp.getTime() / 1000,
         }, sactive);
-    };
+    }
 
     public generateJWTLog(user) {
-        let today = new Date();
-        let exp = new Date(today);
+        const today = new Date();
+        const exp = new Date(today);
        // exp.setDate(today.getDate() + 60);
-      exp.setDate(today.getDate());
+        exp.setDate(today.getDate());
 
-      return jwt.sign({
+        return jwt.sign({
             id: user.idUser,
             username: user.login,
             email: user.email,
-            role:user.roles,
-            exp: (exp.getTime()/1000)  + 900,
+            role: user.roles,
+            exp: (exp.getTime() / 1000)  + 900,
         }, sactive);
-    };
-
+    }
 
     async findByEmail(email: string): Promise<UserRO>{
-        const user = await this.userRepository.findOne({email: email});
+        const user = await this.userRepository.findOne({email});
         return this.buildUserRO(user);
     }
 
@@ -117,12 +112,46 @@ export class UserService implements IUserService{
         return user;
     }
 
+    async resetPassword(token: string, password: string){
+      const res = await User.resetPassword(token, password);
+      return res;
+    }
+
+    async checkResetToken(token: string): Promise<any>{
+      const res = await User.checkResetPasswordToken(token);
+      return res;
+    }
+
+    async sendEmailReset(email: string): Promise<any>{
+      const res = await  User.sendEmailWithPasswordToken(email);
+      return  res;
+    }
     async findUserByCode(code: string): Promise<UserRO>{
         //console.log("0 user:"+email);
         const user = await User.findUserByCode(code);
         //console.log("1 user:");
         //console.log("user:"+user.login);
         return user;
+    }
+
+    async checkConfimationToken(token: string): Promise<any>{
+
+        const res = await User.checkConfirmationToken(token);
+        return res;
+
+    }
+
+/*
+    sendResetEmail(email:string):Promise<any>{
+
+    }
+*/
+
+    async resendEmail(id: string): Promise<any>{
+
+        const res = await User.resendEmail(id);
+        return res;
+
     }
 
     /*
@@ -133,6 +162,10 @@ export class UserService implements IUserService{
         return user;
     }
 
+    async findUserByEmail2(email:string): Promise<User>{
+        const user = await this.userRepository.findOne({email: email});
+        return user;
+    }
 
     public async findById(idU: string): Promise<UserRO>{
         const user = await this.userRepository.findOne({idUser: idU});
@@ -153,57 +186,54 @@ export class UserService implements IUserService{
     public async envoiMail(envoiMail: EnvoiMailDto){
         const giftMail = await Gift.findGiftByIdWithUser(envoiMail.idGift);
 
+        console.log('envoiMail.loginSender:' + envoiMail.loginSender);
+        console.log('envoiMail.emailSender:' + envoiMail.emailSender);
+        console.log('envoiMail.phoneSender:' + envoiMail.updateActiveCodeSender);
 
-        console.log("envoiMail.loginSender:"+envoiMail.loginSender);
-        console.log("envoiMail.emailSender:"+envoiMail.emailSender);
-        console.log("envoiMail.phoneSender:"+envoiMail.updateActiveCodeSender);
+        console.log('giftMail.User.login:' + giftMail.User.login);
+        console.log('giftMail.User.email:' + giftMail.User.email);
+        console.log('giftMail.User.email:' + giftMail.nom);
 
-        console.log("giftMail.User.login:"+giftMail.User.login);
-        console.log("giftMail.User.email:"+giftMail.User.email);
-        console.log("giftMail.User.email:"+giftMail.nom);
-
-        ToolService.sendMailUser({login: envoiMail.loginSender, email: envoiMail.emailSender,tel:envoiMail.phoneSender,titregift:giftMail.nom}, {
+        ToolService.sendMailUser({login: envoiMail.loginSender, email: envoiMail.emailSender, tel: envoiMail.phoneSender, titregift: giftMail.nom}, {
             login: giftMail.User.login,
-            email: giftMail.User.email
-        }, envoiMail.message,giftMail.nom);
+            email: giftMail.User.email,
+        }, envoiMail.message, giftMail.nom);
     }
 
-    public async activateUser(code:string,idGift:number){
-        const user:User= await User.findOneByCode(code);
+    public async activateUser(code: string, idGift: number){
+        const user: User = await User.findOneByCode(code);
         const decoded: any = awt.verify(code, sactive);
 
-        console.log("activate user");
+        console.log('activate user');
         if (user === undefined) {
             const errors = {User: ' not found'};
             throw new HttpException({errors}, 401);
-        };
-        user.valide=1;
-        let u: User = await User.save(user);
+        }
+        user.valide = 1;
+        const u: User = await User.save(user);
       //  if(autovalidAdmin===1){
 
           // const  giftCreated:Gift=await this.giftService.validateGift(idGift);
 
            // console.log("giftCreated.emailUser:"+user.email);
-            ToolService.sendMail({login: LoginSofwee, email: MailSofwee}, {
+        ToolService.sendMail({login: LoginSofwee, email: MailSofwee}, {
                 login: user.login,
-                email: user.email
+                email: user.email,
             }, 1);
 
         //}
 
         //const  giftCreated:Gift=await GiftPostedService.emailValidateGiftPosted(idGift);
-        u.code="";
+        u.code = '';
         const uValide: User = await User.save(u);
 
         return uValide;
     }
 
-
-    public generateActiveCode(user:User) {
-        let today = new Date();
-        let exp = new Date(today);
+    public generateActiveCode(user: User) {
+        const today = new Date();
+        const exp = new Date(today);
         exp.setDate(today.getDate() + 60);
-
 
         return awt.sign({
             id: user.idUser,
@@ -211,36 +241,33 @@ export class UserService implements IUserService{
             email: user.email,
             exp: exp.getTime() / 1000,
         }, sactive);
-    };
+    }
 
+    public async updateActiveCode(user): Promise<User>{
 
-    public async updateActiveCode(user):Promise<User>{
+        const code: string = await this.generateActiveCode(user);
 
-        const code:string = await this.generateActiveCode(user);
-
-        user.code=code;
-        console.log("user used:"+user.id)
+        user.code = code;
+        console.log('user used:' + user.id);
         const u: User = await User.save(user);
 
         return u;
     }
 
-    public async updateUserPass(user,newpass):Promise<User>{
+    public async updateUserPass(user, newpass): Promise<User>{
 
-        console.log('user login:'+user.login+" email"+user.email+" phone:"+user.phone);
-        user.pass= ToolService.getBCryptHash(newpass);
+        console.log('user login:' + user.login + ' email' + user.email + ' phone:' + user.phone);
+        user.pass = await ToolService.getBCryptHash(newpass);
         console.log('update pass done');
         const u: User = await User.save(user);
-      console.log('update user done');
+        console.log('update user done');
         return u;
     }
 
+    public async forgotPasswordMail(id: string, email: string, login: string, code: string){
 
-
-    public async forgotPasswordMail(id:string,email:string,login:string,code:string){
-
-        console.log("Forgot paswword email:"+email+" code:"+code+" login:"+login);
-        ToolService.forgotPasswordMail(email,login,code);
+        console.log('Forgot paswword email:' + email + ' code:' + code + ' login:' + login);
+        ToolService.forgotPasswordMail(email, login, code);
 
     }
 
