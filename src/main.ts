@@ -36,7 +36,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
   app.use('/uploads', express.static('./uploads'));
-  await app.listen(3050);
+  await app.listen(3010);
 }
 bootstrap()
 .then(() => {
