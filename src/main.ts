@@ -30,6 +30,7 @@ async function bootstrap() {
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
+  app.use(express.static(join(process.cwd(), 'html/flakes/')));
   app.setViewEngine('hbs');
 
   const document = SwaggerModule.createDocument(app, options);
