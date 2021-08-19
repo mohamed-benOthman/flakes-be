@@ -6,6 +6,5 @@ pipelines:
           image: node:latest
           runs-on: self.hosted
           script:
-            - npm install
             - npm run start
   

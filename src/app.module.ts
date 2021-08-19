@@ -26,14 +26,13 @@ import {AuthenticationMiddleware} from './common/middleware/authentication.middl
 import { MiddlewaresConsumer } from '@nestjs/common/interfaces/middlewares';
 import {BanierePublicitaireModule} from './BanierePublicitaire/banierePublicitaire.module';
 import { PaymentMethodModule } from './payment-method/payment-method.module';
-import { PaymentMethodModule } from './payment-method/payment-method.module';
 import * as entities from './index-entities';
 @Module({
   imports: [
     TypeOrmModule.forRoot(
       {
         type: 'mysql',
-        host: 'localhost',
+        host: '82.165.253.223',
         port: 3306,
         // username: 'root',
         // password: '',
