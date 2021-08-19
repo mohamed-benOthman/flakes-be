@@ -11,20 +11,20 @@ export class BanierePublicitaireController {
   constructor(private readonly banierePublicitaireService: BanierePublicitaireService) {}
 
   @Post('add')
-  @ApiOperation({titile: 'Ajouter une une photo de baniere publicitaire'})
+  @ApiOperation({title: 'Ajouter une une photo de baniere publicitaire'})
   @ApiResponse({status: 200, description: 'image ajoutee'})
-  @ApiResponse({status: 400, descriptiom : 'cette image est deja existe'})
+  @ApiResponse({status: 400, description : 'cette image est deja existe'})
   public async addImage(@Req() req: Request ){
     const image = await this.banierePublicitaireService.addImage(req.body.imageUrl);
     return image;
   }
 
   @Get('all')
-  @ApiOperation({titile: 'get les photos de baniere publicitaire'})
+  @ApiOperation({title: 'get les photos de baniere publicitaire'})
   @ApiResponse({status: 200, description: 'image ajoutee'})
-  @ApiResponse({status: 400, descriptiom : 'cette image est deja existe'})
+  @ApiResponse({status: 400, description : 'cette image est deja existe'})
   public async getImages(@Req() req: Request, @Res() res, @Session() session){
-    const images: Expertise[] = await this.banierePublicitaireService.findAll();
+    const images: any[] = await this.banierePublicitaireService.findAll();
     return res
         .status(HttpStatus.OK)
         .send(images);

@@ -13,7 +13,7 @@ export class AuthController {
     }
 
     @Get('data')
-    @UseGuards(AuthGuard())
+    @UseGuards()
     findAll() {
         // This route is restricted by AuthGuard
         // JWT strategy
