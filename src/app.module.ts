@@ -32,7 +32,7 @@ import * as entities from './index-entities';
     TypeOrmModule.forRoot(
       {
         type: 'mysql',
-        host: '82.165.253.223',
+        host: 'localhost',
         port: 3306,
         // username: 'root',
         // password: '',
