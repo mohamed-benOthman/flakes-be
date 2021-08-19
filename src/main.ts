@@ -30,12 +30,13 @@ async function bootstrap() {
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
+  app.use(express.static(join(process.cwd(), 'html/flakes/')));
   app.setViewEngine('hbs');
 
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
   app.use('/uploads', express.static('./uploads'));
-  await app.listen(3050);
+  await app.listen(3010);
 }
 bootstrap()
 .then(() => {
