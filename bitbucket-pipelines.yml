@@ -1,0 +1,12 @@
+pipelines:
+  branches: # Branch-specific pipelines definitions
+    develop:
+      - step:
+          name: Build and test the app
+          image: node:latest
+          runs-on: self.hosted
+          script:
+            - npm install
+            - npm run test
+            - npm run build
+  
