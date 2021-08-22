@@ -32,7 +32,7 @@ import * as entities from './index-entities';
     TypeOrmModule.forRoot(
       {
         type: 'mysql',
-        host: 'localhost',
+        host: 'host.docker.internal',
         port: 3306,
         // username: 'root',
         // password: '',
