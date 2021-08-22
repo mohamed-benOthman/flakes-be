@@ -1,0 +1,33 @@
+version: '20.10.8'
+
+services:
+
+  # database:
+  #   container_name: 'database'
+  #   image: 'mysql'
+  #   restart: 'always'
+  #   environment:
+  #     - MYSQL_DATABASE= 'Flakes4'
+  #     - MYSQL_USER= 'root'
+  #     - MYSQL_ALLOW_EMPTY_PASSWORD= 'true'
+  #     - MYSQL_ROOT_PASSWORD= ''
+  #   ports:
+  #     - target: 3306
+  #       published: 3307
+  #       protocol: tcp
+  #       mode: host
+
+  app:
+    build:
+        context: .
+        dockerfile: ./Dockerfile
+    image: flakes-be
+    # depends_on:
+    #     - database
+    ports:
+          - target: 3050
+            published: 3060
+            protocol: tcp
+            mode: host
+    stdin_open: true
+    tty: true  

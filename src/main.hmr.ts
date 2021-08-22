@@ -5,7 +5,7 @@ declare const module: any;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(3060);
+  await app.listen(3050);
 
   if (module.hot) {
     module.hot.accept();
