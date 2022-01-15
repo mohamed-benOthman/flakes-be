@@ -35,7 +35,7 @@ import * as entities from "./index-entities";
       port: 3306,
       username: "root",
       password: "",
-      database: "Flakes2",
+      database: "flakes2",
       // username: "yrros",
       // password: "7Quinoa.0",
       // database: "Flakes2",
