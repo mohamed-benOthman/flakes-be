@@ -9,28 +9,29 @@ import {
   RelationId,
   getRepository,
   ManyToMany,
-  JoinTable, JoinColumn,
-} from 'typeorm';
-import {AppErrorEnum} from '../common/error/AppErrorEnum';
-import {AppError} from '../common/error/AppError';
-import * as crypto from 'crypto';
-import { CreateMaquilleuseDto } from './Model/CreateMaquilleuseDto';
-import { Cities } from '../Cities/cities.entity';
-import { Departments } from '../Departments/departments.entity';
-import { Photos } from '../Photos/photos.entity';
-import { JsonProperty } from 'json-typescript-mapper';
-import { Business } from '../Business/business.entity';
-import {ToolService} from '../common/tool/tool.service';
-import { Expertise } from '../Expertise/expertise.entity';
-import { AppSearchingTypeEnum } from '../common/error/AppSearchingTypeEnum';
-import { MaquilleuseI } from './interfaces/maquilleuse.interface';
-import {User} from '../User/user.entity';
-import {UserMailDto} from '../User/Model/UserMailDto';
-import {OffreCommerciale} from '../OffreCommerciale/offrecommerciale.entity';
-import {PaymentMethod} from '../payment-method/payment-method.entity';
+  JoinTable,
+  JoinColumn,
+} from "typeorm";
+import { AppErrorEnum } from "../common/error/AppErrorEnum";
+import { AppError } from "../common/error/AppError";
+import * as crypto from "crypto";
+import { CreateMaquilleuseDto } from "./Model/CreateMaquilleuseDto";
+import { Cities } from "../Cities/cities.entity";
+import { Departments } from "../Departments/departments.entity";
+import { Photos } from "../Photos/photos.entity";
+import { JsonProperty } from "json-typescript-mapper";
+import { Business } from "../Business/business.entity";
+import { ToolService } from "../common/tool/tool.service";
+import { Expertise } from "../Expertise/expertise.entity";
+import { AppSearchingTypeEnum } from "../common/error/AppSearchingTypeEnum";
+import { MaquilleuseI } from "./interfaces/maquilleuse.interface";
+import { User } from "../User/user.entity";
+import { UserMailDto } from "../User/Model/UserMailDto";
+import { OffreCommerciale } from "../OffreCommerciale/offrecommerciale.entity";
+import { PaymentMethod } from "../payment-method/payment-method.entity";
 
-@Entity('maquilleuse')
-export class Maquilleuse extends BaseEntity{
+@Entity("maquilleuse")
+export class Maquilleuse extends BaseEntity {
   @PrimaryGeneratedColumn()
   idMaquilleuse: number;
 
@@ -57,21 +58,27 @@ export class Maquilleuse extends BaseEntity{
 
   @Column({ length: 200 })
   photo_profile: string;
-  @JsonProperty('photos')
-  @OneToMany(type => Photos, photos => photos.maquilleuse, { cascade: true, eager: true })
+  @JsonProperty("photos")
+  @OneToMany((type) => Photos, (photos) => photos.maquilleuse, {
+    cascade: true,
+    eager: true,
+  })
   photosUrl: Photos[];
-  @ManyToOne(type => Cities, cities => cities.maquilleuses, { nullable: false, onDelete: 'CASCADE' })
+  @ManyToOne((type) => Cities, (cities) => cities.maquilleuses, {
+    nullable: false,
+    onDelete: "CASCADE",
+  })
   cities: Cities;
 
   @OneToOne(() => OffreCommerciale)
   @JoinColumn()
   offre: OffreCommerciale;
 
-  @ManyToMany(type => Business)
+  @ManyToMany((type) => Business)
   @JoinTable()
   business: Business[];
 
-  @ManyToMany(type => Expertise)
+  @ManyToMany((type) => Expertise)
   @JoinTable()
   expertises: Expertise[];
 
@@ -94,14 +101,17 @@ export class Maquilleuse extends BaseEntity{
   @Column()
   subsciptionPaid: boolean;
 
-  public static async findAll(debut: number, cpt: number): Promise<Maquilleuse[]> {
-    console.log('Find All execution');
+  public static async findAll(
+    debut: number,
+    cpt: number
+  ): Promise<Maquilleuse[]> {
+    console.log("Find All execution");
     const users: Maquilleuse[] = await getRepository(Maquilleuse)
-      .createQueryBuilder('maquilleuse')
-      .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-      .leftJoinAndSelect('maquilleuse.cities', 'cities')
-      .leftJoinAndSelect('maquilleuse.business', 'business')
-      .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
       .skip(debut)
       .take(cpt)
       .getMany()
@@ -110,111 +120,107 @@ export class Maquilleuse extends BaseEntity{
         console.error(err);
       });
 
-    console.log('End All execution');
+    console.log("End All execution");
     if (users.length > 0) {
       return Promise.resolve(users);
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_DB);
     }
-
   }
 
-  public static async findAllMaquilleusetByCriteria(param: string, type: string) {
-
-   // console.log("Essai nbr Maq");
-    const tabParam = param.split('|');
-    const tabType = type.split('|');
+  public static async findAllMaquilleusetByCriteria(
+    param: string,
+    type: string
+  ) {
+    // console.log("Essai nbr Maq");
+    const tabParam = param.split("|");
+    const tabType = type.split("|");
     let condition: string;
-    condition = '';
+    condition = "";
     let iscond: boolean = false;
-    if (type !== '0') {
-      if (type === '5') {
-        condition += ' maquilleuse.username = \'' + param + '\'';
-      }
-      else {
-        if (type === '6') {
-          condition += ' maquilleuse.emailAdress = \'' + param + '\'';
-        }
-        else {
-
+    if (type !== "0") {
+      if (type === "5") {
+        condition += " maquilleuse.username = '" + param + "'";
+      } else {
+        if (type === "6") {
+          condition += " maquilleuse.emailAdress = '" + param + "'";
+        } else {
           for (const typ of tabType) {
-
-            if (typ === '1') {
+            if (typ === "1") {
               if (iscond) {
-                condition += 'and department.code in (' + tabParam[0] + ') ';
-              }
-              else {
-                condition += 'department.code in (' + tabParam[0] + ') ';
+                condition += "and department.code in (" + tabParam[0] + ") ";
+              } else {
+                condition += "department.code in (" + tabParam[0] + ") ";
               }
               iscond = true;
-            }
-            else if (typ === '2') {
-
-              const tabParamCity = tabParam[1].split(';');
+            } else if (typ === "2") {
+              const tabParamCity = tabParam[1].split(";");
               if (iscond) {
-                condition += 'and cities.code = \'' + tabParamCity[0] + '\' and city = \'' + tabParamCity[1] + '\' ';
-              }
-              else {
-                condition += 'cities.code = \'' + tabParamCity[0] + '\' and city = \'' + tabParamCity[1] + '\' ';
+                condition +=
+                  "and cities.code = '" +
+                  tabParamCity[0] +
+                  "' and city = '" +
+                  tabParamCity[1] +
+                  "' ";
+              } else {
+                condition +=
+                  "cities.code = '" +
+                  tabParamCity[0] +
+                  "' and city = '" +
+                  tabParamCity[1] +
+                  "' ";
               }
               iscond = true;
-
-            }
-            else if (typ === '3') {
+            } else if (typ === "3") {
               if (iscond) {
-                condition += 'and business.idBusiness in (' + tabParam[2] + ') ';
-              }
-              else {
-                condition += 'business.idBusiness in (' + tabParam[2] + ') ';
+                condition +=
+                  "and business.idBusiness in (" + tabParam[2] + ") ";
+              } else {
+                condition += "business.idBusiness in (" + tabParam[2] + ") ";
               }
               iscond = true;
-
-            }
-
-            else if (typ === '4') {
+            } else if (typ === "4") {
               if (iscond) {
-                condition += 'and expertise.idExpertise in (' + tabParam[3] + ') ';
-              }
-              else {
-                condition += 'expertise.idExpertise in (' + tabParam[3] + ') ';
+                condition +=
+                  "and expertise.idExpertise in (" + tabParam[3] + ") ";
+              } else {
+                condition += "expertise.idExpertise in (" + tabParam[3] + ") ";
               }
               iscond = true;
-
             }
           }
         }
       }
     }
 
-   // console.log(condition);
+    // console.log(condition);
     let nbr: number = -1;
-    if (iscond){
+    if (iscond) {
       nbr = await getRepository(Maquilleuse)
-      // const requete: string = await getRepository(Maquilleuse)
-        .createQueryBuilder('maquilleuse')
-        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-        .leftJoinAndSelect('maquilleuse.cities', 'cities')
-        .leftJoinAndSelect('cities.department_code', 'department')
-        .leftJoinAndSelect('maquilleuse.business', 'business')
-        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
+        // const requete: string = await getRepository(Maquilleuse)
+        .createQueryBuilder("maquilleuse")
+        .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+        .leftJoinAndSelect("maquilleuse.cities", "cities")
+        .leftJoinAndSelect("cities.department_code", "department")
+        .leftJoinAndSelect("maquilleuse.business", "business")
+        .leftJoinAndSelect("maquilleuse.expertises", "expertise")
         .where(condition)
-         .getCount();
-        // .getQuery();
+        .getCount();
+      // .getQuery();
       //console.log("requete:"+requete);
-    }
-    else{
+    } else {
       nbr = await getRepository(Maquilleuse)
-      // const requete: string = await getRepository(Maquilleuse)
-        .createQueryBuilder('maquilleuse')
-        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-        .leftJoinAndSelect('maquilleuse.cities', 'cities')
-        .leftJoinAndSelect('cities.department_code', 'department')
-        .leftJoinAndSelect('maquilleuse.business', 'business')
-        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-         .getCount();
-       //  .getquery();
+        // const requete: string = await getRepository(Maquilleuse)
+        .createQueryBuilder("maquilleuse")
+        .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+        .leftJoinAndSelect("maquilleuse.cities", "cities")
+        .leftJoinAndSelect("cities.department_code", "department")
+        .leftJoinAndSelect("maquilleuse.business", "business")
+        .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+        .getCount();
+      //  .getquery();
 
-     // console.log("requete:"+requete);
+      // console.log("requete:"+requete);
     }
 
     //console.log('Essai 2');
@@ -224,18 +230,18 @@ export class Maquilleuse extends BaseEntity{
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
 
-  public static async findMaquilleuseByUsername(username: string): Promise<Maquilleuse> {
-
+  public static async findMaquilleuseByUsername(
+    username: string
+  ): Promise<Maquilleuse> {
     const martist: Maquilleuse = await getRepository(Maquilleuse)
-      .createQueryBuilder('maquilleuse')
-      .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-      .leftJoinAndSelect('maquilleuse.cities', 'cities')
-      .leftJoinAndSelect('maquilleuse.business', 'business')
-      .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-      .where('maquilleuse.username = \'' + username + '\'')
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+      .where("maquilleuse.username = '" + username + "'")
       .getOne();
     if (martist) {
       return Promise.resolve(martist);
@@ -243,18 +249,16 @@ export class Maquilleuse extends BaseEntity{
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
   public static async updateMaquilleuse(user: any): Promise<Maquilleuse> {
-
     const u: Maquilleuse = await getRepository(Maquilleuse)
-        .createQueryBuilder('maquilleuse')
-        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-        .leftJoinAndSelect('maquilleuse.cities', 'cities')
-        .leftJoinAndSelect('maquilleuse.business', 'business')
-        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-        .where('maquilleuse.username = \'' + user.username + '\'')
-        .getOne();
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+      .where("maquilleuse.username = '" + user.username + "'")
+      .getOne();
 
     if (u) {
       u.firstname = user.firstname;
@@ -271,125 +275,116 @@ export class Maquilleuse extends BaseEntity{
 
       console.log(u);
       const makeupArt: Maquilleuse = await Maquilleuse.save(u);
-
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
   public static async deleteMaquilleuse(user: any) {
     console.log(user);
     const u: Maquilleuse = await getRepository(Maquilleuse)
-        .createQueryBuilder('maquilleuse')
-        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-        .leftJoinAndSelect('maquilleuse.cities', 'cities')
-        .leftJoinAndSelect('maquilleuse.business', 'business')
-        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-        .where('maquilleuse.username = \'' + user + '\'')
-        .getOne();
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+      .where("maquilleuse.username = '" + user + "'")
+      .getOne();
 
     if (u) {
       const makeupArt: Maquilleuse = await Maquilleuse.remove(u);
-
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
   public static async getMaquilleuseByUsername(user: any) {
     console.log(user);
     const u: Maquilleuse = await getRepository(Maquilleuse)
-        .createQueryBuilder('maquilleuse')
-        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-        .leftJoinAndSelect('maquilleuse.cities', 'cities')
-        .leftJoinAndSelect('maquilleuse.business', 'business')
-        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-        .where('maquilleuse.username = \'' + user + '\'')
-        .getOne();
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+      .where("maquilleuse.username = '" + user + "'")
+      .getOne();
 
     if (u) {
       return Promise.resolve(u);
-
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
   public static async getMaquilleuseByUsernameForPayment(user: any) {
     console.log(user);
     const u: Maquilleuse = await getRepository(Maquilleuse)
-        .createQueryBuilder('maquilleuse')
-        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-        .leftJoinAndSelect('maquilleuse.cities', 'cities')
-        .leftJoinAndSelect('maquilleuse.business', 'business')
-        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-        .leftJoinAndSelect('maquilleuse.offre', 'offre_commerciale')
-        .where('maquilleuse.username = \'' + user + '\'')
-        .getOne();
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+      .leftJoinAndSelect("maquilleuse.offre", "offre_commerciale")
+      .where("maquilleuse.username = '" + user + "'")
+      .getOne();
 
     if (u) {
       return Promise.resolve(u);
-
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
 
   public static async getMaquilleuseByUsernameForPayment2(user: any) {
     console.log(user);
     const u: Maquilleuse = await getRepository(Maquilleuse)
-        .createQueryBuilder('maquilleuse')
-        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-        .leftJoinAndSelect('maquilleuse.cities', 'cities')
-        .leftJoinAndSelect('maquilleuse.business', 'business')
-        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-        .leftJoinAndSelect('maquilleuse.offre', 'offre_commerciale')
-        .leftJoinAndSelect('maquilleuse.paymentMethod', 'payment_method')
-        .where('maquilleuse.username = \'' + user + '\'')
-        .getOne();
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+      .leftJoinAndSelect("maquilleuse.offre", "offre_commerciale")
+      .leftJoinAndSelect("maquilleuse.paymentMethod", "payment_method")
+      .where("maquilleuse.username = '" + user + "'")
+      .getOne();
 
     if (u) {
       const result = {
-        offre : u.offre,
+        offre: u.offre,
         paymentMethod: u.paymentMethod,
       };
       return Promise.resolve(result);
-
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
   public static async getAllMaquilleuses2(): Promise<Maquilleuse> {
-
     const martist: Maquilleuse = await getRepository(Maquilleuse)
-        .createQueryBuilder('maquilleuse')
-        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-        .leftJoinAndSelect('maquilleuse.cities', 'cities')
-        .leftJoinAndSelect('maquilleuse.business', 'business')
-        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-        .getMany();
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+      .getMany();
 
     return Promise.resolve(martist);
-
   }
 
-  public static async findMaquilleuseByDept(dept: string, debut: number, cpt: number): Promise<Maquilleuse[]> {
-
+  public static async findMaquilleuseByDept(
+    dept: string,
+    debut: number,
+    cpt: number
+  ): Promise<Maquilleuse[]> {
     const martists: Maquilleuse[] = await getRepository(Maquilleuse)
-      .createQueryBuilder('maquilleuse')
-      .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-      .leftJoinAndSelect('maquilleuse.cities', 'cities')
-      .leftJoinAndSelect('cities.department_code', 'department')
-      .leftJoinAndSelect('maquilleuse.business', 'business')
-      .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-      .where('department.code = \'' + dept + '\'')
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("cities.department_code", "department")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+      .where("department.code = '" + dept + "'")
       .skip(debut)
       .take(cpt)
       .getMany();
@@ -398,23 +393,20 @@ export class Maquilleuse extends BaseEntity{
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
 
   public static async isMaquilleuseExisted(parametre: string, type: string) {
-
     let condition: string;
-    if (type === 'E'){
-      condition = 'maquilleuse.emailAdress = \'' + parametre + '\'';
-    }
-    else{
-      if (type === 'U')
-        condition = 'maquilleuse.username = \'' + parametre + '\'';
+    if (type === "E") {
+      condition = "maquilleuse.emailAdress = '" + parametre + "'";
+    } else {
+      if (type === "U")
+        condition = "maquilleuse.username = '" + parametre + "'";
     }
 
     // console.log('condition:'+condition);
     const martists: Maquilleuse = await getRepository(Maquilleuse)
-      .createQueryBuilder('maquilleuse')
+      .createQueryBuilder("maquilleuse")
       .where(condition)
       .getOne();
     if (martists !== undefined) {
@@ -422,10 +414,9 @@ export class Maquilleuse extends BaseEntity{
     } else {
       return false;
     }
-
   }
 
- /* public static async getAllMquilleuses(){
+  /* public static async getAllMquilleuses(){
 
     const respositoryMaquilleuse = getRepository(Maquilleuse);
     let  allMaquilleuse = [];
@@ -434,173 +425,174 @@ export class Maquilleuse extends BaseEntity{
     return allMaquilleuse;
   }*/
 
-  public static async findMaquilleusetypeAll(param: string, type: string, debut: number, cpt: number): Promise<Maquilleuse[]> {
-
-    const tabParam = param.split('|');
-    const tabType = type.split('|');
+  public static async findMaquilleusetypeAll(
+    param: string,
+    type: string,
+    debut: number,
+    cpt: number
+  ): Promise<Maquilleuse[]> {
+    const tabParam = param.split("|");
+    const tabType = type.split("|");
     let condition: string;
-    condition = '';
+    condition = "";
     let iscond: boolean = false;
 
-    if (type !== '0') {
-      if (type === '5') {
-        condition += ' maquilleuse.username = \'' + param + '\'';
+    if (type !== "0") {
+      if (type === "5") {
+        condition += " maquilleuse.username = '" + param + "'";
         iscond = true;
-      }
-      else {
-        if (type === '6') {
-          condition += ' maquilleuse.emailAdress = \'' + param + '\'';
+      } else {
+        if (type === "6") {
+          condition += " maquilleuse.emailAdress = '" + param + "'";
           iscond = true;
-        }
-        else {
-
+        } else {
           for (const typ of tabType) {
-
-            if (typ === '1') {
+            if (typ === "1") {
               if (iscond) {
-                condition += 'and department.code in (' + tabParam[0] + ') ';
+                condition += "and department.code in (" + tabParam[0] + ") ";
+              } else {
+                condition += "department.code in (" + tabParam[0] + ") ";
               }
-              else {
-                condition += 'department.code in (' + tabParam[0] + ') ';
+              iscond = true;
+            } else if (typ === "2") {
+              const tabParamCity = tabParam[1].split(";");
+              // console.log('ville:'+tabParam[1]);
+              if (iscond) {
+                condition +=
+                  "and cities.code = '" +
+                  tabParamCity[0] +
+                  "' and city = '" +
+                  tabParamCity[1] +
+                  "' ";
+              } else {
+                condition +=
+                  "cities.code = '" +
+                  tabParamCity[0] +
+                  "' and city = '" +
+                  tabParamCity[1] +
+                  "' ";
+              }
+              iscond = true;
+            } else if (typ === "3") {
+              if (iscond) {
+                condition +=
+                  "and business.idBusiness in (" + tabParam[2] + ") ";
+              } else {
+                condition += "business.idBusiness in (" + tabParam[2] + ") ";
+              }
+              iscond = true;
+            } else if (typ === "4") {
+              if (iscond) {
+                condition +=
+                  "and expertise.idExpertise in (" + tabParam[3] + ") ";
+              } else {
+                condition += "expertise.idExpertise in (" + tabParam[3] + ") ";
               }
               iscond = true;
             }
-            else if (typ === '2') {
-
-              const tabParamCity = tabParam[1].split(';');
-             // console.log('ville:'+tabParam[1]);
-              if (iscond) {
-                condition += 'and cities.code = \'' + tabParamCity[0] + '\' and city = \'' + tabParamCity[1] + '\' ';
-              }
-              else {
-                condition += 'cities.code = \'' + tabParamCity[0] + '\' and city = \'' + tabParamCity[1] + '\' ';
-              }
-              iscond = true;
-
-            }
-            else if (typ === '3') {
-              if (iscond) {
-                condition += 'and business.idBusiness in (' + tabParam[2] + ') ';
-              }
-              else {
-                condition += 'business.idBusiness in (' + tabParam[2] + ') ';
-              }
-              iscond = true;
-
-            }
-
-            else if (typ === '4') {
-              if (iscond) {
-                condition += 'and expertise.idExpertise in (' + tabParam[3] + ') ';
-              }
-              else {
-                condition += 'expertise.idExpertise in (' + tabParam[3] + ') ';
-              }
-              iscond = true;
-
-            }
-
           }
         }
       }
     }
 
     let martists: Maquilleuse[];
-    if (iscond){
+    if (iscond) {
       martists = await getRepository(Maquilleuse)
-      //const requete: string = await getRepository(Maquilleuse)
-        .createQueryBuilder('maquilleuse')
-        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-        .leftJoinAndSelect('maquilleuse.cities', 'cities')
-        .leftJoinAndSelect('cities.department_code', 'department')
-        .leftJoinAndSelect('maquilleuse.business', 'business')
-        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
+        //const requete: string = await getRepository(Maquilleuse)
+        .createQueryBuilder("maquilleuse")
+        .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+        .leftJoinAndSelect("maquilleuse.cities", "cities")
+        .leftJoinAndSelect("cities.department_code", "department")
+        .leftJoinAndSelect("maquilleuse.business", "business")
+        .leftJoinAndSelect("maquilleuse.expertises", "expertise")
         .where(condition)
         .skip(debut)
         .take(cpt)
-       // .getQuery();
+        // .getQuery();
         .getMany();
-     //   console.log(requete);
-    }
-    else{
+      //   console.log(requete);
+    } else {
       martists = await getRepository(Maquilleuse)
-      //const requete: string = await getRepository(Maquilleuse)
-        .createQueryBuilder('maquilleuse')
-        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-        .leftJoinAndSelect('maquilleuse.cities', 'cities')
-        .leftJoinAndSelect('cities.department_code', 'department')
-        .leftJoinAndSelect('maquilleuse.business', 'business')
-        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
+        //const requete: string = await getRepository(Maquilleuse)
+        .createQueryBuilder("maquilleuse")
+        .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+        .leftJoinAndSelect("maquilleuse.cities", "cities")
+        .leftJoinAndSelect("cities.department_code", "department")
+        .leftJoinAndSelect("maquilleuse.business", "business")
+        .leftJoinAndSelect("maquilleuse.expertises", "expertise")
         .skip(debut)
         .take(cpt)
         //.getQuery()
 
-       .getMany();
+        .getMany();
 
-     //   console.log(requete);
-
+      //   console.log(requete);
     }
 
     if (martists.length > 0) {
-
       return Promise.resolve(martists);
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
 
-  public static async findMaquilleuseByCities(zipcode: string, name: string, debut: number, cpt: number): Promise<Maquilleuse[]> {
-
+  public static async findMaquilleuseByCities(
+    zipcode: string,
+    name: string,
+    debut: number,
+    cpt: number
+  ): Promise<Maquilleuse[]> {
     const martists: Maquilleuse[] = await getRepository(Maquilleuse)
-      .createQueryBuilder('maquilleuse')
-      .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-      .leftJoinAndSelect('maquilleuse.cities', 'cities')
-      .leftJoinAndSelect('maquilleuse.business', 'business')
-      .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-      .where('cities.code = \'' + zipcode + '\' and city = \'' + name + '\'')
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+      .where("cities.code = '" + zipcode + "' and city = '" + name + "'")
       .skip(debut)
       .take(cpt)
       .getMany();
     if (martists.length > 0) {
-
       return Promise.resolve(martists);
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
 
-  public static async findMaquilleuseByBusiness(idBusiness: number, debt: number, nbr: number): Promise<Maquilleuse[]> {
-
+  public static async findMaquilleuseByBusiness(
+    idBusiness: number,
+    debt: number,
+    nbr: number
+  ): Promise<Maquilleuse[]> {
     const martists: Maquilleuse[] = await getRepository(Maquilleuse)
-      .createQueryBuilder('maquilleuse')
-      .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-      .leftJoinAndSelect('maquilleuse.cities', 'cities')
-      .leftJoinAndSelect('maquilleuse.business', 'business')
-      .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-      .where('business.idBusiness = \'' + idBusiness + '\'')
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+      .where("business.idBusiness = '" + idBusiness + "'")
       .skip(debt)
       .take(nbr)
       .getMany();
     if (martists.length > 0) {
-
       return Promise.resolve(martists);
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
 
-  public static async findMaquilleuseByExpertise(idExpertise: number, debut: number, cpt: number): Promise<Maquilleuse[]> {
-
+  public static async findMaquilleuseByExpertise(
+    idExpertise: number,
+    debut: number,
+    cpt: number
+  ): Promise<Maquilleuse[]> {
     const martist: Maquilleuse[] = await getRepository(Maquilleuse)
-      .createQueryBuilder('maquilleuse')
-      .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-      .leftJoinAndSelect('maquilleuse.cities', 'cities')
-      .leftJoinAndSelect('maquilleuse.business', 'business')
-      .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-      .where('expertise.idExpertise = \'' + idExpertise + '\'')
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+      .where("expertise.idExpertise = '" + idExpertise + "'")
       .skip(debut)
       .take(cpt)
       .getMany();
@@ -609,21 +601,21 @@ export class Maquilleuse extends BaseEntity{
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
 
-  public static async findMaquilleuseByEmail(email: string): Promise<Maquilleuse> {
-
-    const emailMod = email.replace('%40', '@' );
-    console.log('email:' + email);
-    console.log('decodeURI(email):' + emailMod);
-    const  martistEmail: Maquilleuse = await getRepository(Maquilleuse)
-      .createQueryBuilder('maquilleuse')
-      .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-      .leftJoinAndSelect('maquilleuse.cities', 'cities')
-      .leftJoinAndSelect('maquilleuse.business', 'business')
-      .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-      .where('maquilleuse.emailAdress = \'' + emailMod + '\'')
+  public static async findMaquilleuseByEmail(
+    email: string
+  ): Promise<Maquilleuse> {
+    const emailMod = email.replace("%40", "@");
+    console.log("email:" + email);
+    console.log("decodeURI(email):" + emailMod);
+    const martistEmail: Maquilleuse = await getRepository(Maquilleuse)
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+      .where("maquilleuse.emailAdress = '" + emailMod + "'")
       .getOne()
       .catch((err) => {
         console.log(err);
@@ -634,66 +626,66 @@ export class Maquilleuse extends BaseEntity{
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
 
-  public static async findMaquilleuseByEmailPayment(email: string): Promise<Maquilleuse> {
-
-    const emailMod = email.replace('%40', '@' );
-    console.log('email:' + email);
-    console.log('decodeURI(email):' + emailMod);
-    const  martistEmail: Maquilleuse = await getRepository(Maquilleuse)
-        .createQueryBuilder('maquilleuse')
-        .leftJoinAndSelect('maquilleuse.photosUrl', 'photos')
-        .leftJoinAndSelect('maquilleuse.cities', 'cities')
-        .leftJoinAndSelect('maquilleuse.business', 'business')
-        .leftJoinAndSelect('maquilleuse.expertises', 'expertise')
-        .leftJoinAndSelect('maquilleuse.paymentMethod', 'payment_method')
-        .where('maquilleuse.emailAdress = \'' + emailMod + '\'')
-        .getOne()
-        .catch((err) => {
-          console.log(err);
-          console.error(err);
-        });
+  public static async findMaquilleuseByEmailPayment(
+    email: string
+  ): Promise<Maquilleuse> {
+    const emailMod = email.replace("%40", "@");
+    console.log("email:" + email);
+    console.log("decodeURI(email):" + emailMod);
+    const martistEmail: Maquilleuse = await getRepository(Maquilleuse)
+      .createQueryBuilder("maquilleuse")
+      .leftJoinAndSelect("maquilleuse.photosUrl", "photos")
+      .leftJoinAndSelect("maquilleuse.cities", "cities")
+      .leftJoinAndSelect("maquilleuse.business", "business")
+      .leftJoinAndSelect("maquilleuse.expertises", "expertise")
+      .leftJoinAndSelect("maquilleuse.paymentMethod", "payment_method")
+      .where("maquilleuse.emailAdress = '" + emailMod + "'")
+      .getOne()
+      .catch((err) => {
+        console.log(err);
+        console.error(err);
+      });
     if (martistEmail !== undefined) {
       return Promise.resolve(martistEmail);
     } else {
       throw new AppError(AppErrorEnum.NO_MAQUILLEUSE_IN_RESULT);
     }
-
   }
 
-  public static async createMakeup(user: CreateMaquilleuseDto, isUpdate: boolean, u: Maquilleuse): Promise<Maquilleuse> {
+  public static async createMakeup(
+    user: CreateMaquilleuseDto,
+    isUpdate: boolean,
+    u: Maquilleuse
+  ): Promise<Maquilleuse> {
     let ucmail: Maquilleuse;
 
-   // console.log('isUpdate:'+isUpdate+' u:'+u);
+    // console.log('isUpdate:'+isUpdate+' u:'+u);
 
     if (isUpdate == false) {
-
       u = await Maquilleuse.findOne({ username: user.username });
       if (u) {
-
         //throw new AppError(AppErrorEnum.USER_EXISTS);
         return 1002;
-      }
-      else{
+      } else {
         ucmail = await Maquilleuse.findOne({ emailAdress: user.emailAdress });
 
-        if (ucmail){
-          return  1001;
+        if (ucmail) {
+          return 1001;
         }
       }
       u = new Maquilleuse();
-    }
-    else{
-
+    } else {
     }
 
-    console.log('User:' + u);
-    console.log('User id Maquilleuse:' + u.idMaquilleuse);
-    console.log('User password:' + user.password);
-    console.log('User phone:' + user.phone);
-    const offre: OffreCommerciale = await OffreCommerciale.findOne({idOffre: user.idOffre});
+    console.log("User:" + u);
+    console.log("User id Maquilleuse:" + u.idMaquilleuse);
+    console.log("User password:" + user.password);
+    console.log("User phone:" + user.phone);
+    const offre: OffreCommerciale = await OffreCommerciale.findOne({
+      idOffre: user.idOffre,
+    });
     u.firstname = user.firstname;
     u.username = user.username;
     u.lastname = user.lastname;
@@ -705,46 +697,50 @@ export class Maquilleuse extends BaseEntity{
     u.slogan = user.slogan;
     u.street = user.street;
     u.movings = user.movings;
-    console.log('u phone:' + u.phone);
+    console.log("u phone:" + u.phone);
 
     // console.log('ukkk 1:'+ u);
     // let makeupArt: Maquilleuse = await Maquilleuse.save(u);
 
     let tabCitie;
     if (user.cities) {
+      tabCitie = user.cities.split(";");
 
-      tabCitie = user.cities.split(';');
-
-      const city: Cities = await Cities.findCityByCodeAndCity(tabCitie[1], tabCitie[0]);
-      console.log(' result city:' + city.city + ' code: ' + city.code);
+      const city: Cities = await Cities.findCityByCodeAndCity(
+        tabCitie[1],
+        tabCitie[0]
+      );
+      console.log(" result city:" + city.city + " code: " + city.code);
       await Cities.save(city);
-      console.log('everythings is allright until photosURL');
+      console.log("everythings is allright until photosURL");
       u.cities = city;
     }
 
     let tabPhotos, tabBusiness, tabExpertises;
-    if (user.photosUrl){
-      tabPhotos = user.photosUrl.split('|'); u.photosUrl = new Array();
+    if (user.photosUrl) {
+      tabPhotos = user.photosUrl.split("|");
+      u.photosUrl = new Array();
 
-      for (const phot of tabPhotos){
+      for (const phot of tabPhotos) {
         const p = await Photos.findOne(phot);
         u.photosUrl.push(p);
       }
     }
-    if (user.business){
-      tabBusiness = user.business.split('|'); u.business = new Array();
+    if (user.business) {
+      tabBusiness = user.business.split("|");
+      u.business = new Array();
 
-      for (const bus of tabBusiness){
+      for (const bus of tabBusiness) {
         const b = await Business.findOne(bus);
         u.business.push(b);
       }
     }
 
     if (user.expertises) {
-      tabExpertises = user.expertises.split('|');
+      tabExpertises = user.expertises.split("|");
       u.expertises = new Array();
 
-      for (const exp of tabExpertises){
+      for (const exp of tabExpertises) {
         const e = await Expertise.findOne(exp);
         u.expertises.push(e);
       }
@@ -752,8 +748,8 @@ export class Maquilleuse extends BaseEntity{
     // console.log('ukkk 99:' + u);
     // makeupArt = await Maquilleuse.save(u);
 
-    console.log('ukkk 2:' + u);
-    console.log('u phone:' + u.phone);
+    console.log("ukkk 2:" + u);
+    console.log("u phone:" + u.phone);
     console.log(Date.now());
     const maq: Maquilleuse = await Maquilleuse.save(u);
     const userToSave: User = {
@@ -765,10 +761,8 @@ export class Maquilleuse extends BaseEntity{
       login: maq.username,
       verified: false,
       token: ToolService.getHashMD5(u.emailAdress),
-
     };
-    if (!isUpdate)
-    await User.save(userToSave);
+    if (!isUpdate) await User.save(userToSave);
     const userInEmail: UserMailDto = {
       login: userToSave.login,
       email: userToSave.email,
@@ -780,21 +774,28 @@ export class Maquilleuse extends BaseEntity{
       tel: userToSave.phone,
     };
     if (!isUpdate)
-    ToolService.sendMailConfirmation(userInEmail, userToInEmail, 1, userToSave.token);
+      ToolService.sendMailConfirmation(
+        userInEmail,
+        userToInEmail,
+        1,
+        userToSave.token
+      );
     return maq;
-
   }
 
-  public static async authenticateUser(user: {username: string, password: string}): Promise<Maquilleuse> {
+  public static async authenticateUser(user: {
+    username: string;
+    password: string;
+  }): Promise<Maquilleuse> {
     let u: Maquilleuse;
     u = await Maquilleuse.findOne({
-      select: ['idMaquilleuse', 'username', 'password'],
-      where: { username: user.username} });
-    const passHash = crypto.createHmac('sha256', user.password).digest('hex');
+      select: ["idMaquilleuse", "username", "password"],
+      where: { username: user.username },
+    });
+    const passHash = crypto.createHmac("sha256", user.password).digest("hex");
     if (u.password === passHash) {
       delete u.password;
-      return  u;
+      return u;
     }
   }
-
 }

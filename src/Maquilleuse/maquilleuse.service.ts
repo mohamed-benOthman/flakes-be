@@ -1,23 +1,23 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Maquilleuse } from './maquilleuse.entity';
-import {IMaquilleuseService} from './IMaquilleuseService';
-import {CreateMaquilleuseDto} from './Model/CreateMaquilleuseDto';
-import {ToolService} from '../common/tool/tool.service';
-import { LoginFlakes } from '../common/config';
-import { MaquilleuseI } from './interfaces/maquilleuse.interface';
-import { MailFlakes } from '../common/config';
-import {UserService} from '../User/user.service';
-import {User} from '../User/user.entity';
+import { Injectable, Inject } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Maquilleuse } from "./maquilleuse.entity";
+import { IMaquilleuseService } from "./IMaquilleuseService";
+import { CreateMaquilleuseDto } from "./Model/CreateMaquilleuseDto";
+import { ToolService } from "../common/tool/tool.service";
+import { LoginFlakes } from "../common/config";
+import { MaquilleuseI } from "./interfaces/maquilleuse.interface";
+import { MailFlakes } from "../common/config";
+import { UserService } from "../User/user.service";
+import { User } from "../User/user.entity";
 // import {ProjectEntity} from '../project/project.entity';
 
 @Injectable()
-export class MaquilleuseService implements IMaquilleuseService{
+export class MaquilleuseService implements IMaquilleuseService {
   constructor(
     @InjectRepository(Maquilleuse)
     private readonly maquilleuseRepository: Repository<Maquilleuse>,
-    private readonly userService: UserService,
+    private readonly userService: UserService
   ) {}
 
   async findAll(): Promise<Maquilleuse[]> {
@@ -34,42 +34,64 @@ export class MaquilleuseService implements IMaquilleuseService{
     return await Maquilleuse.isMaquilleuseExisted(parametre, type);
   }
 
-  async findMaquilleuseByDept(dept: string, debt: number, nbr: number): Promise<Maquilleuse[]> {
+  async findMaquilleuseByDept(
+    dept: string,
+    debt: number,
+    nbr: number
+  ): Promise<Maquilleuse[]> {
     return await Maquilleuse.findMaquilleuseByDept(dept, debt, nbr);
   }
 
-  async findMaquilleuseByTown(zipcode: string, town: string, debt: number, nbr: number): Promise<Maquilleuse[]> {
+  async findMaquilleuseByTown(
+    zipcode: string,
+    town: string,
+    debt: number,
+    nbr: number
+  ): Promise<Maquilleuse[]> {
     return await Maquilleuse.findMaquilleuseByCities(zipcode, town, debt, nbr);
   }
 
-  async findMaquilleuseByBusiness(business: number, debt: number, nbr: number): Promise<Maquilleuse[]> {
+  async findMaquilleuseByBusiness(
+    business: number,
+    debt: number,
+    nbr: number
+  ): Promise<Maquilleuse[]> {
     return await Maquilleuse.findMaquilleuseByBusiness(business, debt, nbr);
   }
 
-  async findMaquilleuseByExpertise(expertise: number, debt: number, nbr: number): Promise<Maquilleuse[]> {
-    return await Maquilleuse.findMaquilleuseByExpertise(expertise , debt, nbr);
+  async findMaquilleuseByExpertise(
+    expertise: number,
+    debt: number,
+    nbr: number
+  ): Promise<Maquilleuse[]> {
+    return await Maquilleuse.findMaquilleuseByExpertise(expertise, debt, nbr);
   }
 
-  async findMaquilleuseTypeAll(param: string, type: string, debt: number, nbr: number): Promise<Maquilleuse[]> {
-    return await Maquilleuse.findMaquilleusetypeAll( param , type, debt, nbr);
+  async findMaquilleuseTypeAll(
+    param: string,
+    type: string,
+    debt: number,
+    nbr: number
+  ): Promise<Maquilleuse[]> {
+    return await Maquilleuse.findMaquilleusetypeAll(param, type, debt, nbr);
   }
 
-  async findAllMaquilleuseNbr(param: string, type: string){
-    return await Maquilleuse.findAllMaquilleusetByCriteria( param , type);
+  async findAllMaquilleuseNbr(param: string, type: string) {
+    return await Maquilleuse.findAllMaquilleusetByCriteria(param, type);
   }
 
-  async findAllMaquilleuses(){
+  async findAllMaquilleuses() {
     return await Maquilleuse.getAllMaquilleuses2();
   }
-  async deleteMaquilleuse(user:any){
+  async deleteMaquilleuse(user: any) {
     return await Maquilleuse.deleteMaquilleuse(user);
   }
-  async getMaquilleuseByUsername(username:any){
+  async getMaquilleuseByUsername(username: any) {
     return await Maquilleuse.getMaquilleuseByUsername(username);
   }
 
   async findMaquilleuseByEmail(email: string): Promise<Maquilleuse> {
-    console.log('email:' + email);
+    console.log("email:" + email);
     return await Maquilleuse.findMaquilleuseByEmail(email);
   }
 
@@ -77,28 +99,31 @@ export class MaquilleuseService implements IMaquilleuseService{
     return await Maquilleuse.getMaquilleuseByUsernameForPayment2(userName);
   }
 
-
-
-
-
-  public async createUser(user: CreateMaquilleuseDto, isUpdate: boolean): Promise<Maquilleuse> {
-
-    console.log('User:' + user.idMaquilleuse);
-    console.log('la maquilleuse ::::::');
+  public async createUser(
+    user: CreateMaquilleuseDto,
+    isUpdate: boolean
+  ): Promise<Maquilleuse> {
+    console.log("User:" + user.idMaquilleuse);
+    console.log("la maquilleuse ::::::");
     console.log(user);
-    const u: Maquilleuse = await Maquilleuse.findOne({idMaquilleuse: user.idMaquilleuse});
+    const u: Maquilleuse = await Maquilleuse.findOne({
+      idMaquilleuse: user.idMaquilleuse,
+    });
 
     if (!u) {
       isUpdate = false;
-    }
-    else{
+    } else {
       isUpdate = true;
     }
 
-    console.log('u:' + u);
-    const userresult: Maquilleuse = await Maquilleuse.createMakeup(user, isUpdate, u);
+    console.log("u:" + u);
+    const userresult: Maquilleuse = await Maquilleuse.createMakeup(
+      user,
+      isUpdate,
+      u
+    );
 
-/*    if ((userresult != 1001) && (userresult != 1002)){
+    /*    if ((userresult != 1001) && (userresult != 1002)){
 
         const usmaq: User = await User.createUserMakup(userresult, isUpdate);
 
@@ -116,6 +141,5 @@ export class MaquilleuseService implements IMaquilleuseService{
         }
     }*/
     return userresult;
-
   }
 }
