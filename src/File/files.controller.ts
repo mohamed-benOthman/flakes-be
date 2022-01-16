@@ -10,37 +10,33 @@ import {
   UseInterceptors,
   FileInterceptor,
   UploadedFile,
-  FilesInterceptor, UploadedFiles, FileFieldsInterceptor,
-} from '@nestjs/common';
-import { FilesService } from './files.service';
-import { ApiUseTags } from '@nestjs/swagger';
-import { CreateMaquilleuseDto } from '../Maquilleuse/Model/CreateMaquilleuseDto';
-import { FileUploaded } from './interfaces/fileuploaded.interface';
-@ApiUseTags('files')
-@Controller('files')
+  FilesInterceptor,
+  UploadedFiles,
+  FileFieldsInterceptor,
+} from "@nestjs/common";
+import { FilesService } from "./files.service";
+import { ApiUseTags } from "@nestjs/swagger";
+import { CreateMaquilleuseDto } from "../Maquilleuse/Model/CreateMaquilleuseDto";
+import { FileUploaded } from "./interfaces/fileuploaded.interface";
+@ApiUseTags("files")
+@Controller("files")
 export class FilesController {
-  constructor(
-    private readonly filesService: FilesService,
-  ) {}
+  constructor(private readonly filesService: FilesService) {}
 
-  @Post('uploadFile')
-
-  @UseInterceptors(FileInterceptor('file'))
+  @Post("uploadFile")
+  @UseInterceptors(FileInterceptor("file"))
   uploadFile(@UploadedFile() file) {
-
     console.log(file);
   }
 
-  @Post('uploadFiles')
-  @UseInterceptors(FilesInterceptor('files'))
+  @Post("uploadFiles")
+  @UseInterceptors(FilesInterceptor("files"))
   uploadFiles(@UploadedFiles() files) {
     console.log(files);
   }
 
-  @Post('upload')
-  @UseInterceptors(FileFieldsInterceptor([
-    { name: 'avatar1', maxCount: 1 },
-  ]))
+  @Post("upload")
+  @UseInterceptors(FileFieldsInterceptor([{ name: "avatar1", maxCount: 1 }]))
   uploadMultipleFile(@UploadedFiles() files) {
     console.log(files);
     const fichier: FileUploaded = files.avatar1[0];
@@ -49,8 +45,7 @@ export class FilesController {
 
   @Get()
   async listFiles(@Res() res: any) {
-    const filesList =  this.filesService.list();
+    const filesList = this.filesService.list();
     return res.status(HttpStatus.OK).json(filesList);
   }
-
 }
