@@ -26,11 +26,12 @@ export class BanierePublicitaire extends BaseEntity {
   imageUrl: string;
 
   public static async addImage(imageUrl: string): Promise<BanierePublicitaire> {
-    const newExpertise = BanierePublicitaire.create();
-    newExpertise.imageUrl = imageUrl;
-    const res = await BanierePublicitaire.save(newExpertise);
-    console.log("result", res);
-    return Promise.resolve(newExpertise);
+    // const newExpertise = BanierePublicitaire.create();
+    const baniere = new BanierePublicitaire();
+    baniere.imageUrl = imageUrl;
+    const res = await BanierePublicitaire.save(baniere);
+    console.log(res);
+    return Promise.resolve(baniere);
   }
   public static async deleteImage(id: number) {
     console.log(id);
