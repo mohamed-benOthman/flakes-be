@@ -22,11 +22,14 @@ export class BanierePublicitaire extends BaseEntity {
   @PrimaryGeneratedColumn()
   idBaniere: number;
 
-  @Column({ length: 150 })
+  @Column({ length: 900 })
   imageUrl: string;
 
   public static async addImage(imageUrl: string): Promise<BanierePublicitaire> {
     // const newExpertise = BanierePublicitaire.create();
+    console.log(
+      "tiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"
+    );
     const baniere = new BanierePublicitaire();
     baniere.imageUrl = imageUrl;
     const res = await BanierePublicitaire.save(baniere);

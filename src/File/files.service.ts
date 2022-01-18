@@ -6,7 +6,7 @@ import * as http from "http";
 @Component()
 export class FilesService {
   private readonly files: FileUploaded[] = [];
-  private urlUpload: string = "http://82.165.48.48/api/uploads/";
+  private urlUpload: string = "http://localhost:3050/uploads/";
   /* private static createFile(file): FileUploaded {
     const type: string = file.originalname.replace(/.*\.(.*)/, '$1');
     const path: string = file.path;
