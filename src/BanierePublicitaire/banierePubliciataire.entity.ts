@@ -32,8 +32,13 @@ export class BanierePublicitaire extends BaseEntity {
     );
     const baniere = new BanierePublicitaire();
     baniere.imageUrl = imageUrl;
-    const res = await BanierePublicitaire.save(baniere);
-    console.log(res);
+    console.log(baniere);
+    try {
+      const res = await BanierePublicitaire.save(baniere);
+    } catch (e) {
+      console.log(e);
+    }
+    console.log("dsqsdqd");
     return Promise.resolve(baniere);
   }
   public static async deleteImage(id: number) {
