@@ -93,7 +93,7 @@ export class Cities extends BaseEntity {
     console.log("city name:" + name + " code:" + code);
     const mcit: Cities = await getRepository(Cities)
       .createQueryBuilder("Cities")
-      .where("cities.code = '" + code + "'")
+      .where("code = '" + code + "'")
       .getOne();
     /*
     const mcit = await Cities.findOne({ code: +code });
