@@ -8,4 +8,4 @@ export const sactive =
   "0nH1wwBLIDEpRchtbFvVNvlgLmrHgWMyO9xpNPrLVinMkqtDoqESsO739f6dykyvYLquLoQwpCV6edRYcBFaeI1zFrzFOvXhbpW4F8DcqPxm9q42z3Ligyi1ROBhHs";
 export const autovalidAdmin = 0;
 export const dnsFlakes = "http://82.165.48.48/api/";
-export const host = "http://localhost:4205/";
+export const host = "https://bereadyforbeauty.com/";
