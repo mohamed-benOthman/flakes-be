@@ -764,6 +764,7 @@ export class Maquilleuse extends BaseEntity {
       valide: 0,
       verified: false,
       token: ToolService.getHashMD5(u.emailAdress),
+      resetPassswordToken: "",
       code: "0000",
     };
     if (!isUpdate) await User.save(userToSave);
