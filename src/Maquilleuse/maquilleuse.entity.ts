@@ -697,6 +697,7 @@ export class Maquilleuse extends BaseEntity {
     u.slogan = user.slogan;
     u.street = user.street;
     u.movings = user.movings;
+    u.nbImages = 0;
     console.log("u phone:" + u.phone);
 
     // console.log('ukkk 1:'+ u);
