@@ -761,8 +761,10 @@ export class Maquilleuse extends BaseEntity {
       phone: maq.phone,
       roles: 1,
       login: maq.username,
+      valide: 0,
       verified: false,
       token: ToolService.getHashMD5(u.emailAdress),
+      code: "0000",
     };
     if (!isUpdate) await User.save(userToSave);
     const userInEmail: UserMailDto = {
