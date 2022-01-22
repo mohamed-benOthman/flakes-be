@@ -693,7 +693,7 @@ export class Maquilleuse extends BaseEntity {
     u.password = await ToolService.getBCryptHash(user.password);
     u.phone = user.phone;
     u.offre = offre;
-    u.photo_profile = user.photo_profile;
+    u.photo_profile = null;
     u.slogan = user.slogan;
     u.street = user.street;
     u.movings = user.movings;
