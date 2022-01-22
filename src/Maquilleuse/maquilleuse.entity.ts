@@ -751,7 +751,15 @@ export class Maquilleuse extends BaseEntity {
     console.log("ukkk 2:" + u);
     console.log("u phone:" + u.phone);
     console.log(Date.now());
-    const maq: Maquilleuse = await Maquilleuse.save(u);
+    try {
+      const maq: Maquilleuse = await Maquilleuse.save(u);
+    } catch (e) {
+      console.log(
+        "errreur --------------------------------- ------------------ --------"
+      );
+      console.log(e);
+    }
+
     const userToSave: User = {
       email: u.emailAdress,
       idMaquilleuse: maq.idMaquilleuse,
