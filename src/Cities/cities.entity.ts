@@ -48,8 +48,9 @@ export class Cities extends BaseEntity {
   public department_code: Departments;
 
   @JsonProperty("maquilleuses")
-  @OneToMany((type) => Maquilleuse, (maquilleuse) => maquilleuse.citiesIdId)
+  @OneToMany((type) => Maquilleuse, (maquilleuse) => maquilleuse.cities)
   maquilleuses: Maquilleuse[];
+
   public static async findAll(): Promise<Cities[]> {
     const cities: Cities[] = await Cities.find();
     if (cities.length > 0) {

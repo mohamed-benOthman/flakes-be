@@ -64,8 +64,8 @@ export class Maquilleuse extends BaseEntity {
     eager: true,
   })
   photosUrl: Photos[];
+
   @ManyToOne((type) => Cities, (cities) => cities.maquilleuses, {
-    nullable: false,
     onDelete: "CASCADE",
   })
   cities: Cities;

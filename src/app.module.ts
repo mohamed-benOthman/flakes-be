@@ -35,11 +35,11 @@ import * as entities from "./index-entities";
       port: 3306,
       username: "root",
       password: "",
-      database: "flakes2",
+      database: "flakes5",
       // username: "yrros",
       // password: "7Quinoa.0",
       // database: "Flakes2",
-      synchronize: false,
+      synchronize: true,
       migrationsRun: false,
       entities: ["src/**/**.entity{.ts,.js}"],
 
