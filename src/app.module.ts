@@ -39,7 +39,7 @@ import * as entities from "./index-entities";
       // username: "yrros",
       // password: "7Quinoa.0",
       // database: "Flakes2",
-      synchronize: true,
+      synchronize: false,
       migrationsRun: false,
       entities: ["src/**/**.entity{.ts,.js}"],
 
