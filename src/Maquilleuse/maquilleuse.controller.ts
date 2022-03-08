@@ -56,6 +56,7 @@ export class MaquilleuseController {
         Number(nombre)
       );
       console.log("twity");
+      return res
     } catch (e) {
       console.log(e);
     }
@@ -180,7 +181,7 @@ export class MaquilleuseController {
   }
 
   @Post("pay")
-  public async login(@Req() req: Request) {
+  public async loginPay(@Req() req: Request) {
     console.log(req.body);
     if (req.body.vads_trans_status === "ACCEPTED") {
       const paymentMedthod: PaymentMethod = {
@@ -204,7 +205,7 @@ export class MaquilleuseController {
   @ApiOperation({ title: "les details de paiement trouve" })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 404 })
-  public async getMaquilleuseByUsername(@Param("username") username: string) {
+  public async getPaymentMaquilleuseByUsername(@Param("username") username: string) {
     return this.maquilleuseService.findMaquilleuseByUserNamePayment(username);
   }
 }
